@@ -11,26 +11,18 @@ import (
 	"strconv"
 )
 
-//
-// example to show how to declare the arguments
-// and reply for an RPC.
-//
-
-type ExampleArgs struct {
-	X int
+type AssignTaskArgs struct {
 }
 
-type ExampleReply struct {
-	Y int
+type AssignTaskReply struct {
+	Task Task
 }
 
-// Add your RPC definitions here.
-type TaskRequest struct {
-	X int
+type ProcessTaskFinishedArgs struct {
+	Task Task
 }
 
-type TaskResponse struct {
-	Name string
+type ProcessTaskFinishedReply struct {
 }
 
 // Cook up a unique-ish UNIX-domain socket name
