@@ -10,3 +10,6 @@ if your are using macos, you need to install coreutils to get the timeout comman
 brew install coreutils
 ```
 
+lab2:
+
+finish the lab2
