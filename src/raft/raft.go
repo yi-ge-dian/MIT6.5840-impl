@@ -80,6 +80,14 @@ type Raft struct {
 	currentTerm int
 	votedFor    int // -1 means for no one
 
+	// Log entries; each entry contains command for state machine,
+	// and term when entry was received by leader (first index is 1)
+	log []LogEntry
+
+	// Only used in leader
+	nextIndex  []int
+	matchIndex []int
+
 	electionStart   time.Time
 	electionTimeout time.Duration // random
 }
@@ -119,6 +127,11 @@ func (rf *Raft) becomeLeaderLocked() {
 
 	LOG(rf.me, rf.currentTerm, DLeader, "%s -> Leader, For T%d", rf.role, rf.currentTerm)
 	rf.role = Leader
+
+	for peer := 0; peer < len(rf.peers); peer++ {
+		rf.nextIndex[peer] = len(rf.log)
+		rf.matchIndex[peer] = 0
+	}
 }
 
 // return currentTerm and whether this server
@@ -242,6 +255,10 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.role = Follower
 	rf.currentTerm = 0
 	rf.votedFor = -1
+	rf.log = append(rf.log, LogEntry{}) // dummy entry to reduce the corner checks
+
+	rf.matchIndex = make([]int, len(peers))
+	rf.nextIndex = make([]int, len(peers))
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
