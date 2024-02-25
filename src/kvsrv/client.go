@@ -10,7 +10,8 @@ import (
 type Clerk struct {
 	server *labrpc.ClientEnd
 	// You will have to modify this struct.
-
+	clientId int64
+	rpcId    uint32
 }
 
 func nrand() int64 {
@@ -24,6 +25,8 @@ func MakeClerk(server *labrpc.ClientEnd) *Clerk {
 	ck := new(Clerk)
 	ck.server = server
 	// You'll have to add code here.
+	ck.clientId = nrand()
+	ck.rpcId = 0
 	return ck
 }
 
@@ -45,12 +48,13 @@ func (ck *Clerk) Get(key string) string {
 	}
 	reply := GetReply{}
 
-	ok := ck.server.Call("KVServer.Get", &args, &reply)
-	if ok {
-		return reply.Value
-	}
+	for {
+		ok := ck.server.Call("KVServer.Get", &args, &reply)
 
-	return ""
+		if ok {
+			return reply.Value
+		}
+	}
 }
 
 // shared by Put and Append.
@@ -63,19 +67,23 @@ func (ck *Clerk) Get(key string) string {
 // arguments. and reply must be passed as a pointer.
 func (ck *Clerk) PutAppend(key string, value string, op string) string {
 	// You will have to modify this function.
+	ck.rpcId += 1
+
 	args := PutAppendArgs{
-		Key:   key,
-		Value: value,
+		Key:      key,
+		Value:    value,
+		ClientId: ck.clientId,
+		RPCId:    ck.rpcId,
 	}
 	reply := PutAppendReply{}
 
-	ok := ck.server.Call("KVServer."+op, &args, &reply)
+	for {
+		ok := ck.server.Call("KVServer."+op, &args, &reply)
 
-	if ok {
-		return reply.Value
+		if ok {
+			return reply.Value
+		}
 	}
-
-	return ""
 }
 
 func (ck *Clerk) Put(key string, value string) {
