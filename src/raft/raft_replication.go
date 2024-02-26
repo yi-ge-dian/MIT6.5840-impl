@@ -52,7 +52,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	}
 
 	// return failure if prevLog doesn't match
-	if args.PrevLogIndex > len(rf.log) {
+	if args.PrevLogIndex >= len(rf.log) {
 		LOG(rf.me, rf.currentTerm, DLog2, "<- S%d, Reject Log, Follower log too short, Len:%d <= Prev:%d", args.LeaderId, len(rf.log), args.PrevLogIndex)
 		return
 	}
@@ -111,6 +111,12 @@ func (rf *Raft) startReplication(term int) bool {
 			return
 		}
 
+		// check the context lost
+		if rf.contextLostLocked(Leader, term) {
+			LOG(rf.me, rf.currentTerm, DLog, "-> S%d, Context Lost, T%d:Leader->T%d:%s", peer, term, rf.currentTerm, rf.role)
+			return
+		}
+
 		// handle the reply
 		// probe the lower index if the prev log not matched
 		if !reply.Success {
@@ -122,7 +128,7 @@ func (rf *Raft) startReplication(term int) bool {
 			}
 
 			rf.nextIndex[peer] = idx + 1
-			LOG(rf.me, rf.currentTerm, DLog, "Log not matched in %d, Update next=%d", args.PrevLogIndex, rf.nextIndex[peer])
+			LOG(rf.me, rf.currentTerm, DLog, "-> S%d, Context Lost, T%d:Leader->T%d:%s", peer, term, rf.currentTerm, rf.role)
 			return
 		}
 		// update the match/next index if log appended successfully
