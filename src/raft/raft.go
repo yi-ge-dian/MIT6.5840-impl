@@ -88,6 +88,12 @@ type Raft struct {
 	nextIndex  []int
 	matchIndex []int
 
+	// Fields for apply loop
+	commitIndex int
+	lastApplied int
+	applyCh     chan ApplyMsg
+	applyCond   *sync.Cond
+
 	electionStart   time.Time
 	electionTimeout time.Duration // random
 }
@@ -255,16 +261,25 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.role = Follower
 	rf.currentTerm = 0
 	rf.votedFor = -1
-	rf.log = append(rf.log, LogEntry{}) // dummy entry to reduce the corner checks
 
+	// dummy entry to reduce the corner checks
+	rf.log = append(rf.log, LogEntry{})
+
+	// initialize the leader's view silce
 	rf.matchIndex = make([]int, len(peers))
 	rf.nextIndex = make([]int, len(peers))
+
+	// initialize the fields for apply loop
+	rf.applyCh = applyCh
+	rf.applyCond = sync.NewCond(&rf.mu)
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
 
 	// start ticker goroutine to start elections
 	go rf.electionTicker()
+	// start ticker goroutine to apply log entries
+	go rf.applicationTicker()
 
 	return rf
 }

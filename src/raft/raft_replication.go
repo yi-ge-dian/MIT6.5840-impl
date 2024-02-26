@@ -1,6 +1,9 @@
 package raft
 
-import "time"
+import (
+	"sort"
+	"time"
+)
 
 type LogEntry struct {
 	// the term when the entry was received by the leader
@@ -9,8 +12,8 @@ type LogEntry struct {
 	// command to be applied
 	Command interface{}
 
-	// the index of the log entry
-	CommandIndex int
+	// whether the command is valid
+	CommandValid bool
 }
 
 type AppendEntriesArgs struct {
@@ -21,6 +24,9 @@ type AppendEntriesArgs struct {
 	PrevLogIndex int
 	PrevLogTerm  int
 	Entries      []LogEntry
+
+	// used to update the follower's commit index
+	LeaderCommit int
 }
 
 type AppendEntriesReply struct {
@@ -61,7 +67,12 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	LOG(rf.me, rf.currentTerm, DLog2, "Follower append logs: (%d, %d]", args.PrevLogIndex, args.PrevLogIndex+len(args.Entries))
 	reply.Success = true
 
-	// TODO(Wenlong Dong): handle the args.LeaderCommit
+	// handle the args.LeaderCommit
+	if args.LeaderCommit > rf.commitIndex {
+		LOG(rf.me, rf.currentTerm, DApply, "Follower update the commit index %d->%d", rf.commitIndex, args.LeaderCommit)
+		rf.commitIndex = args.LeaderCommit
+		rf.applyCond.Signal()
+	}
 
 	// reset the election timer, promising not start election in some interval
 	rf.resetElectionTimerLocked()
@@ -70,6 +81,15 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 func (rf *Raft) sendAppendEntries(server int, args *AppendEntriesArgs, reply *AppendEntriesReply) bool {
 	ok := rf.peers[server].Call("Raft.AppendEntries", args, reply)
 	return ok
+}
+
+func (rf *Raft) getMajorityIndexLocked() int {
+	tempIndexes := make([]int, len(rf.peers))
+	copy(tempIndexes, rf.matchIndex)
+	sort.Ints(sort.IntSlice(tempIndexes))
+	majorityIdx := (len(rf.peers) - 1) / 2
+	LOG(rf.me, rf.currentTerm, DDebug, "Match index after sort: %v, majority[%d]=%d", tempIndexes, majorityIdx, tempIndexes[majorityIdx])
+	return tempIndexes[majorityIdx]
 }
 
 func (rf *Raft) startReplication(term int) bool {
@@ -109,7 +129,13 @@ func (rf *Raft) startReplication(term int) bool {
 		rf.matchIndex[peer] = args.PrevLogIndex + len(args.Entries)
 		rf.nextIndex[peer] = rf.matchIndex[peer] + 1
 
-		// TODO(Wenlong Dong): need compute the new commitIndex here
+		// need compute the new commitIndex here
+		majorityMatched := rf.getMajorityIndexLocked()
+		if majorityMatched > rf.commitIndex {
+			LOG(rf.me, rf.currentTerm, DApply, "Leader update the commit index %d->%d", rf.commitIndex, majorityMatched)
+			rf.commitIndex = majorityMatched
+			rf.applyCond.Signal()
+		}
 	}
 
 	rf.mu.Lock()
@@ -136,6 +162,7 @@ func (rf *Raft) startReplication(term int) bool {
 			PrevLogIndex: prevLogIndex,
 			PrevLogTerm:  prevLogTerm,
 			Entries:      rf.log[prevLogIndex+1:],
+			LeaderCommit: rf.commitIndex,
 		}
 
 		go replicateToPeer(peer, args)
