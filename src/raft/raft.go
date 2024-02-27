@@ -35,6 +35,11 @@ const (
 	replicateInterval time.Duration = 70 * time.Millisecond
 )
 
+const (
+	InvalidTerm  int = 0
+	InvalidIndex int = 0
+)
+
 type Role string
 
 const (
@@ -146,6 +151,17 @@ func (rf *Raft) becomeLeaderLocked() {
 	}
 }
 
+func (rf *Raft) firstLogFor(term int) int {
+	for idx, entry := range rf.log {
+		if entry.Term == term {
+			return idx
+		} else if entry.Term > term {
+			break
+		}
+	}
+	return InvalidIndex
+}
+
 // return currentTerm and whether this server
 // believes it is the leader.
 func (rf *Raft) GetState() (int, bool) {
@@ -235,11 +251,11 @@ func Make(peers []*labrpc.ClientEnd, me int,
 
 	// Your initialization code here (3A, 3B, 3C).
 	rf.role = Follower
-	rf.currentTerm = 0
+	rf.currentTerm = 1
 	rf.votedFor = -1
 
 	// dummy entry to reduce the corner checks
-	rf.log = append(rf.log, LogEntry{})
+	rf.log = append(rf.log, LogEntry{Term: InvalidTerm})
 
 	// initialize the leader's view silce
 	rf.matchIndex = make([]int, len(peers))

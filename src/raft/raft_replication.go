@@ -32,6 +32,9 @@ type AppendEntriesArgs struct {
 type AppendEntriesReply struct {
 	Term    int
 	Success bool
+
+	ConfilictIndex int
+	ConfilictTerm  int
 }
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
@@ -53,11 +56,15 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 
 	// return failure if prevLog doesn't match
 	if args.PrevLogIndex >= len(rf.log) {
+		reply.ConfilictTerm = InvalidTerm
+		reply.ConfilictIndex = len(rf.log)
 		LOG(rf.me, rf.currentTerm, DLog2, "<- S%d, Reject Log, Follower log too short, Len:%d <= Prev:%d", args.LeaderId, len(rf.log), args.PrevLogIndex)
 		return
 	}
 
 	if args.PrevLogTerm != rf.log[args.PrevLogIndex].Term {
+		reply.ConfilictTerm = rf.log[args.PrevLogIndex].Term
+		reply.ConfilictIndex = rf.firstLogFor(reply.ConfilictTerm)
 		LOG(rf.me, rf.currentTerm, DLog2, "<- S%d, Reject Log, Prev log not match, [%d]: T%d != T%d", args.LeaderId, args.PrevLogIndex, rf.log[args.PrevLogIndex].Term, args.PrevLogTerm)
 		return
 	}
@@ -121,14 +128,23 @@ func (rf *Raft) startReplication(term int) bool {
 		// handle the reply
 		// probe the lower index if the prev log not matched
 		if !reply.Success {
-			idx := rf.nextIndex[peer] - 1
-			term := rf.log[idx].Term
-
-			for idx > 0 && rf.log[idx].Term == term {
-				idx--
+			prevIndex := rf.nextIndex[peer]
+			if reply.ConfilictTerm == InvalidTerm {
+				rf.nextIndex[peer] = reply.ConfilictIndex
+			} else {
+				firstIndex := rf.firstLogFor(reply.ConfilictTerm)
+				if firstIndex != InvalidIndex {
+					rf.nextIndex[peer] = firstIndex
+				} else {
+					rf.nextIndex[peer] = reply.ConfilictIndex
+				}
 			}
 
-			rf.nextIndex[peer] = idx + 1
+			// avoid unordered reply
+			if rf.nextIndex[peer] > prevIndex {
+				rf.nextIndex[peer] = prevIndex
+			}
+
 			LOG(rf.me, rf.currentTerm, DLog, "-> S%d, Context Lost, T%d:Leader->T%d:%s", peer, term, rf.currentTerm, rf.role)
 			return
 		}
