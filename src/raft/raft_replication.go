@@ -54,6 +54,9 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		rf.becomeFollowerLocked(args.Term)
 	}
 
+	// reset the election timer, promising not start election in some interval
+	rf.resetElectionTimerLocked()
+
 	// return failure if prevLog doesn't match
 	if args.PrevLogIndex >= len(rf.log) {
 		reply.ConfilictTerm = InvalidTerm
@@ -82,8 +85,6 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		rf.applyCond.Signal()
 	}
 
-	// reset the election timer, promising not start election in some interval
-	rf.resetElectionTimerLocked()
 }
 
 func (rf *Raft) sendAppendEntries(server int, args *AppendEntriesArgs, reply *AppendEntriesReply) bool {
