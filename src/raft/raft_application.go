@@ -8,7 +8,7 @@ func (rf *Raft) applicationTicker() {
 		entries := make([]LogEntry, 0)
 		// should start from rf.lastApplied+1 instead of rf.lastApplied
 		for i := rf.lastApplied + 1; i <= rf.commitIndex; i++ {
-			entries = append(entries, rf.log[i])
+			entries = append(entries, rf.log.at(i))
 		}
 		rf.mu.Unlock()
 

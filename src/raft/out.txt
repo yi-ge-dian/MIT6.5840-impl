@@ -1,0 +1,1774 @@
+000003 T0001 VOTE S0 Follower -> Candidate, For T1->T2
+Test (3D): snapshots basic ...
+000005 T0001 VOTE S1 Follower -> Candidate, For T1->T2
+000005 T0001 VOTE S2 Follower -> Candidate, For T1->T2
+000006 T0002 PERS S0 Persist: T2, VotedFor: 0, Log: [0: 1)
+000006 T0002 DBUG S0 -> S1, AskVote, Args=Candidate-0 T2, Last:[0]T0
+000007 T0002 PERS S1 Persist: T2, VotedFor: 1, Log: [0: 1)
+000007 T0002 DBUG S0 -> S2, AskVote, Args=Candidate-0 T2, Last:[0]T0
+000007 T0002 DBUG S1 -> S0, AskVote, Args=Candidate-1 T2, Last:[0]T0
+000007 T0002 DBUG S1 -> S2, AskVote, Args=Candidate-1 T2, Last:[0]T0
+000007 T0002 PERS S2 Persist: T2, VotedFor: 2, Log: [0: 1)
+000008 T0002 DBUG S2 -> S0, AskVote, Args=Candidate-2 T2, Last:[0]T0
+000008 T0002 DBUG S2 -> S1, AskVote, Args=Candidate-2 T2, Last:[0]T0
+000010 T0002 DBUG S1 <- S0, VoteAsked, Args=Candidate-0 T2, Last:[0]T0
+000010 T0002 DBUG S2 <- S1, VoteAsked, Args=Candidate-1 T2, Last:[0]T0
+000010 T0002 VOTE S2 <- S1, Reject, Already voted S2
+000010 T0002 VOTE S1 <- S0, Reject, Already voted S1
+000010 T0002 DBUG S1 <- S2, VoteAsked, Args=Candidate-2 T2, Last:[0]T0
+000010 T0002 VOTE S1 <- S2, Reject, Already voted S1
+000010 T0002 DBUG S2 <- S0, VoteAsked, Args=Candidate-0 T2, Last:[0]T0
+000010 T0002 VOTE S2 <- S0, Reject, Already voted S2
+000011 T0002 DBUG S0 -> S2, AskVote Reply=T2, VoteGranted: false
+000011 T0002 DBUG S0 <- S1, VoteAsked, Args=Candidate-1 T2, Last:[0]T0
+000011 T0002 VOTE S0 <- S1, Reject, Already voted S0
+000011 T0002 DBUG S0 -> S1, AskVote Reply=T2, VoteGranted: false
+000012 T0002 DBUG S0 <- S2, VoteAsked, Args=Candidate-2 T2, Last:[0]T0
+000012 T0002 DBUG S1 -> S2, AskVote Reply=T2, VoteGranted: false
+000012 T0002 VOTE S0 <- S2, Reject, Already voted S0
+000012 T0002 DBUG S2 -> S1, AskVote Reply=T2, VoteGranted: false
+000012 T0002 DBUG S1 -> S0, AskVote Reply=T2, VoteGranted: false
+000012 T0002 DBUG S2 -> S0, AskVote Reply=T2, VoteGranted: false
+000580 T0002 VOTE S1 Candidate -> Candidate, For T2->T3
+000581 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 1)
+000582 T0003 DBUG S1 -> S0, AskVote, Args=Candidate-1 T3, Last:[0]T0
+000582 T0003 DBUG S1 -> S2, AskVote, Args=Candidate-1 T3, Last:[0]T0
+000584 T0002 DBUG S0 <- S1, VoteAsked, Args=Candidate-1 T3, Last:[0]T0
+000584 T0002 LOG1 S0 Candidate -> Follower, For T2->T3
+000585 T0003 PERS S0 Persist: T3, VotedFor: -1, Log: [0: 1)
+000585 T0003 VOTE S0 Compare last log, Me: [0]T0, Candidate: [0]T0
+000585 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 1)
+000585 T0003 VOTE S0 <- S1
+000585 T0002 DBUG S2 <- S1, VoteAsked, Args=Candidate-1 T3, Last:[0]T0
+000585 T0002 LOG1 S2 Candidate -> Follower, For T2->T3
+000585 T0003 PERS S2 Persist: T3, VotedFor: -1, Log: [0: 1)
+000586 T0003 VOTE S2 Compare last log, Me: [0]T0, Candidate: [0]T0
+000586 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 1)
+000586 T0003 VOTE S2 <- S1
+000586 T0003 DBUG S1 -> S0, AskVote Reply=T2, VoteGranted: true
+000586 T0003 LEAD S1 Candidate -> Leader, For T3
+000586 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[0]T0, (0 0], CommitIdx:0
+000586 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[0]T0, (0 0], CommitIdx:0
+000588 T0003 DBUG S1 -> S2, AskVote Reply=T2, VoteGranted: true
+000588 T0003 VOTE S1 Lost context, abort RequestVoteReply in T3
+000589 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[0]T0, (0 0], CommitIdx:0
+000590 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+000590 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 1)
+000590 T0003 LOG2 S0 Follower append logs: (0, 0]
+000589 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[0]T0, (0 0], CommitIdx:0
+000590 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+000591 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 1)
+000591 T0003 LOG2 S2 Follower append logs: (0, 0]
+000591 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+000591 T0003 DBUG S1 Match index after sort: [0 0 0], majority[1]=0
+000592 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+000592 T0003 DBUG S1 Match index after sort: [0 0 0], majority[1]=0
+001014 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 2)
+001014 T0003 LEAD S1 Leader accept log [1]T3
+001293 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[0]T0, (0 1], CommitIdx:0
+001293 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[0]T0, (0 1], CommitIdx:0
+001297 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[0]T0, (0 1], CommitIdx:0
+001297 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+001297 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 2)
+001297 T0003 LOG2 S2 Follower append logs: (0, 1]
+001297 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[0]T0, (0 1], CommitIdx:0
+001297 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+001298 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 2)
+001298 T0003 LOG2 S0 Follower append logs: (0, 1]
+001299 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+001299 T0003 DBUG S1 Match index after sort: [0 1 1], majority[1]=1
+001299 T0003 APLY S1 Leader update the commit index 0->1
+001299 T0003 APLY S1 Apply log for [1, 1]
+001300 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+001300 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+001994 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+001994 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+001997 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+001998 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+001998 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 2)
+001998 T0003 LOG2 S0 Follower append logs: (1, 1]
+001998 T0003 APLY S0 Follower update the commit index 0->1
+001998 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+001998 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+001999 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 2)
+001999 T0003 LOG2 S2 Follower append logs: (1, 1]
+001999 T0003 APLY S2 Follower update the commit index 0->1
+001999 T0003 APLY S0 Apply log for [1, 1]
+002000 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+002000 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+002000 T0003 APLY S2 Apply log for [1, 1]
+002001 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+002002 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+002705 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+002705 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+002709 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+002709 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+002709 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 2)
+002710 T0003 LOG2 S0 Follower append logs: (1, 1]
+002709 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+002710 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+002711 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 2)
+002711 T0003 LOG2 S2 Follower append logs: (1, 1]
+002711 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+002711 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+002714 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+002714 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+003416 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+003416 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+003421 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+003422 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+003422 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 2)
+003422 T0003 LOG2 S0 Follower append logs: (1, 1]
+003421 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+003423 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+003423 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 2)
+003423 T0003 LOG2 S2 Follower append logs: (1, 1]
+003425 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+003425 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+003426 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+003426 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+004121 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+004121 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+004125 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+004125 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+004125 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+004125 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+004125 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 2)
+004125 T0003 LOG2 S0 Follower append logs: (1, 1]
+004125 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 2)
+004125 T0003 LOG2 S2 Follower append logs: (1, 1]
+004127 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+004127 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+004128 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+004128 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+004828 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+004828 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+004831 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+004832 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+004832 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+004832 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 2)
+004832 T0003 LOG2 S0 Follower append logs: (1, 1]
+004832 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+004833 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 2)
+004833 T0003 LOG2 S2 Follower append logs: (1, 1]
+004834 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+004834 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+004835 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+004835 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+005532 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+005533 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+005536 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+005536 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+005536 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+005536 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 2)
+005536 T0003 LOG2 S0 Follower append logs: (1, 1]
+005536 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+005537 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 2)
+005537 T0003 LOG2 S2 Follower append logs: (1, 1]
+005538 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+005538 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+005539 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+005539 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+006243 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+006244 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+006247 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+006247 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+006247 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+006247 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+006248 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 2)
+006248 T0003 LOG2 S2 Follower append logs: (1, 1]
+006248 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 2)
+006248 T0003 LOG2 S0 Follower append logs: (1, 1]
+006249 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+006250 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+006250 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+006250 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+006949 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+006949 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+006953 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+006953 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 1], CommitIdx:1
+006953 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+006953 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 2)
+006953 T0003 LOG2 S2 Follower append logs: (1, 1]
+006953 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+006954 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 2)
+006954 T0003 LOG2 S0 Follower append logs: (1, 1]
+006955 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+006955 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+006956 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+006957 T0003 DBUG S1 Match index after sort: [1 1 1], majority[1]=1
+007526 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 3)
+007526 T0003 LEAD S1 Leader accept log [2]T3
+007527 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 4)
+007527 T0003 LEAD S1 Leader accept log [3]T3
+007527 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 5)
+007527 T0003 LEAD S1 Leader accept log [4]T3
+007528 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 6)
+007528 T0003 LEAD S1 Leader accept log [5]T3
+007528 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 7)
+007528 T0003 LEAD S1 Leader accept log [6]T3
+007529 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 8)
+007529 T0003 LEAD S1 Leader accept log [7]T3
+007660 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[1]T3, (1 7], CommitIdx:1
+007661 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[1]T3, (1 7], CommitIdx:1
+007664 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 7], CommitIdx:1
+007664 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+007665 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 8)
+007665 T0003 LOG2 S2 Follower append logs: (1, 7]
+007665 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[1]T3, (1 7], CommitIdx:1
+007665 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+007666 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+007666 T0003 DBUG S1 Match index after sort: [1 7 7], majority[1]=7
+007666 T0003 APLY S1 Leader update the commit index 1->7
+007666 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 8)
+007666 T0003 LOG2 S0 Follower append logs: (1, 7]
+007667 T0003 APLY S1 Apply log for [2, 7]
+007669 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+007669 T0003 DBUG S1 Match index after sort: [7 7 7], majority[1]=7
+008365 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[7]T3, (7 7], CommitIdx:7
+008365 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[7]T3, (7 7], CommitIdx:7
+008369 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[7]T3, (7 7], CommitIdx:7
+008369 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+008369 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[7]T3, (7 7], CommitIdx:7
+008369 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+008369 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 8)
+008369 T0003 LOG2 S2 Follower append logs: (7, 7]
+008369 T0003 APLY S2 Follower update the commit index 1->7
+008369 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 8)
+008370 T0003 LOG2 S0 Follower append logs: (7, 7]
+008370 T0003 APLY S0 Follower update the commit index 1->7
+008371 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+008370 T0003 APLY S2 Apply log for [2, 7]
+008371 T0003 DBUG S1 Match index after sort: [7 7 7], majority[1]=7
+008371 T0003 APLY S0 Apply log for [2, 7]
+008371 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+008371 T0003 DBUG S1 Match index after sort: [7 7 7], majority[1]=7
+008547 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 9)
+008547 T0003 LEAD S1 Leader accept log [8]T3
+009070 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[7]T3, (7 8], CommitIdx:7
+009070 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[7]T3, (7 8], CommitIdx:7
+009074 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[7]T3, (7 8], CommitIdx:7
+009074 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+009075 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 9)
+009075 T0003 LOG2 S2 Follower append logs: (7, 8]
+009074 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[7]T3, (7 8], CommitIdx:7
+009075 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+009075 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 9)
+009076 T0003 LOG2 S0 Follower append logs: (7, 8]
+009076 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+009076 T0003 DBUG S1 Match index after sort: [7 8 8], majority[1]=8
+009076 T0003 APLY S1 Leader update the commit index 7->8
+009077 T0003 APLY S1 Apply log for [8, 8]
+009077 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+009077 T0003 DBUG S1 Match index after sort: [8 8 8], majority[1]=8
+009775 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[8]T3, (8 8], CommitIdx:8
+009775 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[8]T3, (8 8], CommitIdx:8
+009778 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[8]T3, (8 8], CommitIdx:8
+009778 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+009778 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 9)
+009778 T0003 LOG2 S2 Follower append logs: (8, 8]
+009779 T0003 APLY S2 Follower update the commit index 7->8
+009778 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[8]T3, (8 8], CommitIdx:8
+009779 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+009780 T0003 APLY S2 Apply log for [8, 8]
+009780 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+009780 T0003 DBUG S1 Match index after sort: [8 8 8], majority[1]=8
+009780 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 9)
+009781 T0003 LOG2 S0 Follower append logs: (8, 8]
+009781 T0003 APLY S0 Follower update the commit index 7->8
+009781 T0003 APLY S0 Apply log for [8, 8]
+009783 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+009783 T0003 DBUG S1 Match index after sort: [8 8 8], majority[1]=8
+009979 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 10)
+009979 T0003 LEAD S1 Leader accept log [9]T3
+009979 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 11)
+009979 T0003 LEAD S1 Leader accept log [10]T3
+009980 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 12)
+009980 T0003 LEAD S1 Leader accept log [11]T3
+009980 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 13)
+009980 T0003 LEAD S1 Leader accept log [12]T3
+009981 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 14)
+009981 T0003 LEAD S1 Leader accept log [13]T3
+009981 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 15)
+009981 T0003 LEAD S1 Leader accept log [14]T3
+009982 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 16)
+009982 T0003 LEAD S1 Leader accept log [15]T3
+009983 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 17)
+009983 T0003 LEAD S1 Leader accept log [16]T3
+009983 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 18)
+009983 T0003 LEAD S1 Leader accept log [17]T3
+010476 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[8]T3, (8 17], CommitIdx:8
+010476 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[8]T3, (8 17], CommitIdx:8
+010479 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[8]T3, (8 17], CommitIdx:8
+010479 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+010480 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 18)
+010480 T0003 LOG2 S2 Follower append logs: (8, 17]
+010481 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[8]T3, (8 17], CommitIdx:8
+010481 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+010481 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 18)
+010481 T0003 LOG2 S0 Follower append logs: (8, 17]
+010482 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+010482 T0003 DBUG S1 Match index after sort: [8 17 17], majority[1]=17
+010482 T0003 APLY S1 Leader update the commit index 8->17
+010484 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 18)
+010484 T0003 APLY S1 Apply log for [9, 17]
+010484 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+010484 T0003 DBUG S1 Match index after sort: [17 17 17], majority[1]=17
+011183 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[17]T3, (17 17], CommitIdx:17
+011183 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[17]T3, (17 17], CommitIdx:17
+011186 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[17]T3, (17 17], CommitIdx:17
+011186 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+011186 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 18)
+011186 T0003 LOG2 S2 Follower append logs: (17, 17]
+011186 T0003 APLY S2 Follower update the commit index 8->17
+011186 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[17]T3, (17 17], CommitIdx:17
+011187 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+011188 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 18)
+011188 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+011188 T0003 DBUG S1 Match index after sort: [17 17 17], majority[1]=17
+011188 T0003 APLY S2 Apply log for [9, 17]
+011188 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 18)
+011188 T0003 LOG2 S0 Follower append logs: (17, 17]
+011188 T0003 APLY S0 Follower update the commit index 8->17
+011190 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+011190 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 18)
+011190 T0003 APLY S0 Apply log for [9, 17]
+011190 T0003 DBUG S1 Match index after sort: [17 17 17], majority[1]=17
+011217 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 19)
+011217 T0003 LEAD S1 Leader accept log [18]T3
+011217 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 20)
+011217 T0003 LEAD S1 Leader accept log [19]T3
+011218 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 21)
+011218 T0003 LEAD S1 Leader accept log [20]T3
+011219 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 22)
+011219 T0003 LEAD S1 Leader accept log [21]T3
+011219 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 23)
+011219 T0003 LEAD S1 Leader accept log [22]T3
+011220 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 24)
+011220 T0003 LEAD S1 Leader accept log [23]T3
+011220 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 25)
+011220 T0003 LEAD S1 Leader accept log [24]T3
+011221 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 26)
+011221 T0003 LEAD S1 Leader accept log [25]T3
+011885 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[17]T3, (17 25], CommitIdx:17
+011886 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[17]T3, (17 25], CommitIdx:17
+011890 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[17]T3, (17 25], CommitIdx:17
+011890 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+011890 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[17]T3, (17 25], CommitIdx:17
+011890 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+011891 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 26)
+011891 T0003 LOG2 S2 Follower append logs: (17, 25]
+011891 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 26)
+011891 T0003 LOG2 S0 Follower append logs: (17, 25]
+011892 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+011892 T0003 DBUG S1 Match index after sort: [17 25 25], majority[1]=25
+011893 T0003 APLY S1 Leader update the commit index 17->25
+011893 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+011893 T0003 DBUG S1 Match index after sort: [25 25 25], majority[1]=25
+011894 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 26)
+011894 T0003 APLY S1 Apply log for [18, 25]
+012597 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[25]T3, (25 25], CommitIdx:25
+012597 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[25]T3, (25 25], CommitIdx:25
+012600 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[25]T3, (25 25], CommitIdx:25
+012601 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+012601 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 26)
+012602 T0003 LOG2 S0 Follower append logs: (25, 25]
+012602 T0003 APLY S0 Follower update the commit index 17->25
+012600 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[25]T3, (25 25], CommitIdx:25
+012603 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+012603 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+012603 T0003 DBUG S1 Match index after sort: [25 25 25], majority[1]=25
+012604 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 26)
+012604 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 26)
+012604 T0003 LOG2 S2 Follower append logs: (25, 25]
+012604 T0003 APLY S2 Follower update the commit index 17->25
+012604 T0003 APLY S0 Apply log for [18, 25]
+012606 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 26)
+012606 T0003 APLY S2 Apply log for [18, 25]
+012606 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+012607 T0003 DBUG S1 Match index after sort: [25 25 25], majority[1]=25
+012662 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 27)
+012662 T0003 LEAD S1 Leader accept log [26]T3
+013306 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[25]T3, (25 26], CommitIdx:25
+013307 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[25]T3, (25 26], CommitIdx:25
+013310 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[25]T3, (25 26], CommitIdx:25
+013310 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+013310 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[25]T3, (25 26], CommitIdx:25
+013310 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+013310 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 27)
+013310 T0003 LOG2 S2 Follower append logs: (25, 26]
+013311 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 27)
+013311 T0003 LOG2 S0 Follower append logs: (25, 26]
+013312 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+013312 T0003 DBUG S1 Match index after sort: [25 26 26], majority[1]=26
+013312 T0003 APLY S1 Leader update the commit index 25->26
+013312 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+013312 T0003 DBUG S1 Match index after sort: [26 26 26], majority[1]=26
+013313 T0003 APLY S1 Apply log for [26, 26]
+014013 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[26]T3, (26 26], CommitIdx:26
+014013 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[26]T3, (26 26], CommitIdx:26
+014017 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[26]T3, (26 26], CommitIdx:26
+014017 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+014017 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 27)
+014017 T0003 LOG2 S0 Follower append logs: (26, 26]
+014017 T0003 APLY S0 Follower update the commit index 25->26
+014017 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[26]T3, (26 26], CommitIdx:26
+014017 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+014018 T0003 APLY S0 Apply log for [26, 26]
+014018 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 27)
+014018 T0003 LOG2 S2 Follower append logs: (26, 26]
+014018 T0003 APLY S2 Follower update the commit index 25->26
+014019 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+014019 T0003 DBUG S1 Match index after sort: [26 26 26], majority[1]=26
+014019 T0003 APLY S2 Apply log for [26, 26]
+014020 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+014020 T0003 DBUG S1 Match index after sort: [26 26 26], majority[1]=26
+014089 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 28)
+014089 T0003 LEAD S1 Leader accept log [27]T3
+014089 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 29)
+014090 T0003 LEAD S1 Leader accept log [28]T3
+014090 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 30)
+014090 T0003 LEAD S1 Leader accept log [29]T3
+014090 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 31)
+014090 T0003 LEAD S1 Leader accept log [30]T3
+014091 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 32)
+014091 T0003 LEAD S1 Leader accept log [31]T3
+014091 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 33)
+014091 T0003 LEAD S1 Leader accept log [32]T3
+014092 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 34)
+014092 T0003 LEAD S1 Leader accept log [33]T3
+014092 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 35)
+014092 T0003 LEAD S1 Leader accept log [34]T3
+014715 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[26]T3, (26 34], CommitIdx:26
+014715 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[26]T3, (26 34], CommitIdx:26
+014719 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[26]T3, (26 34], CommitIdx:26
+014719 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+014719 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[26]T3, (26 34], CommitIdx:26
+014719 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+014720 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 35)
+014720 T0003 LOG2 S2 Follower append logs: (26, 34]
+014720 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 35)
+014720 T0003 LOG2 S0 Follower append logs: (26, 34]
+014721 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+014722 T0003 DBUG S1 Match index after sort: [26 34 34], majority[1]=34
+014722 T0003 APLY S1 Leader update the commit index 26->34
+014722 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+014722 T0003 DBUG S1 Match index after sort: [34 34 34], majority[1]=34
+014724 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 35)
+014724 T0003 APLY S1 Apply log for [27, 34]
+015421 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[34]T3, (34 34], CommitIdx:34
+015421 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[34]T3, (34 34], CommitIdx:34
+015424 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[34]T3, (34 34], CommitIdx:34
+015424 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+015424 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[34]T3, (34 34], CommitIdx:34
+015424 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+015425 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 35)
+015425 T0003 LOG2 S0 Follower append logs: (34, 34]
+015425 T0003 APLY S0 Follower update the commit index 26->34
+015425 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 35)
+015425 T0003 LOG2 S2 Follower append logs: (34, 34]
+015425 T0003 APLY S2 Follower update the commit index 26->34
+015427 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+015427 T0003 DBUG S1 Match index after sort: [34 34 34], majority[1]=34
+015427 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 35)
+015428 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 35)
+015428 T0003 APLY S0 Apply log for [27, 34]
+015428 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+015428 T0003 APLY S2 Apply log for [27, 34]
+015428 T0003 DBUG S1 Match index after sort: [34 34 34], majority[1]=34
+015524 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 36)
+015524 T0003 LEAD S1 Leader accept log [35]T3
+015524 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 37)
+015524 T0003 LEAD S1 Leader accept log [36]T3
+015525 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 38)
+015525 T0003 LEAD S1 Leader accept log [37]T3
+015525 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 39)
+015525 T0003 LEAD S1 Leader accept log [38]T3
+015526 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 40)
+015526 T0003 LEAD S1 Leader accept log [39]T3
+015526 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 41)
+015526 T0003 LEAD S1 Leader accept log [40]T3
+015526 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 42)
+015527 T0003 LEAD S1 Leader accept log [41]T3
+015527 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 43)
+015527 T0003 LEAD S1 Leader accept log [42]T3
+015527 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 44)
+015527 T0003 LEAD S1 Leader accept log [43]T3
+015528 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 45)
+015528 T0003 LEAD S1 Leader accept log [44]T3
+015528 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 46)
+015528 T0003 LEAD S1 Leader accept log [45]T3
+015529 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 47)
+015529 T0003 LEAD S1 Leader accept log [46]T3
+015529 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 48)
+015529 T0003 LEAD S1 Leader accept log [47]T3
+016125 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[34]T3, (34 47], CommitIdx:34
+016126 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[34]T3, (34 47], CommitIdx:34
+016129 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[34]T3, (34 47], CommitIdx:34
+016129 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+016130 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[34]T3, (34 47], CommitIdx:34
+016130 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+016130 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 48)
+016130 T0003 LOG2 S0 Follower append logs: (34, 47]
+016131 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 48)
+016131 T0003 LOG2 S2 Follower append logs: (34, 47]
+016132 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+016132 T0003 DBUG S1 Match index after sort: [34 47 47], majority[1]=47
+016132 T0003 APLY S1 Leader update the commit index 34->47
+016133 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+016133 T0003 DBUG S1 Match index after sort: [47 47 47], majority[1]=47
+016133 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 48)
+016134 T0003 APLY S1 Apply log for [35, 47]
+016834 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[47]T3, (47 47], CommitIdx:47
+016834 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[47]T3, (47 47], CommitIdx:47
+016837 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[47]T3, (47 47], CommitIdx:47
+016837 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+016837 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[47]T3, (47 47], CommitIdx:47
+016837 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+016838 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 48)
+016838 T0003 LOG2 S2 Follower append logs: (47, 47]
+016838 T0003 APLY S2 Follower update the commit index 34->47
+016838 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 48)
+016838 T0003 LOG2 S0 Follower append logs: (47, 47]
+016838 T0003 APLY S0 Follower update the commit index 34->47
+016839 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+016840 T0003 DBUG S1 Match index after sort: [47 47 47], majority[1]=47
+016840 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+016840 T0003 DBUG S1 Match index after sort: [47 47 47], majority[1]=47
+016840 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 48)
+016840 T0003 APLY S2 Apply log for [35, 47]
+016841 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 48)
+016841 T0003 APLY S0 Apply log for [35, 47]
+016968 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 49)
+016968 T0003 LEAD S1 Leader accept log [48]T3
+017537 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[47]T3, (47 48], CommitIdx:47
+017538 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[47]T3, (47 48], CommitIdx:47
+017540 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[47]T3, (47 48], CommitIdx:47
+017541 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+017541 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[47]T3, (47 48], CommitIdx:47
+017541 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+017541 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 49)
+017541 T0003 LOG2 S2 Follower append logs: (47, 48]
+017541 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 49)
+017541 T0003 LOG2 S0 Follower append logs: (47, 48]
+017543 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+017543 T0003 DBUG S1 Match index after sort: [47 48 48], majority[1]=48
+017543 T0003 APLY S1 Leader update the commit index 47->48
+017543 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+017543 T0003 DBUG S1 Match index after sort: [48 48 48], majority[1]=48
+017544 T0003 APLY S1 Apply log for [48, 48]
+018248 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[48]T3, (48 48], CommitIdx:48
+018248 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[48]T3, (48 48], CommitIdx:48
+018251 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[48]T3, (48 48], CommitIdx:48
+018251 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+018251 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[48]T3, (48 48], CommitIdx:48
+018252 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 49)
+018252 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+018252 T0003 LOG2 S2 Follower append logs: (48, 48]
+018252 T0003 APLY S2 Follower update the commit index 47->48
+018252 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 49)
+018252 T0003 LOG2 S0 Follower append logs: (48, 48]
+018252 T0003 APLY S0 Follower update the commit index 47->48
+018252 T0003 APLY S2 Apply log for [48, 48]
+018253 T0003 APLY S0 Apply log for [48, 48]
+018253 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+018253 T0003 DBUG S1 Match index after sort: [48 48 48], majority[1]=48
+018254 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+018254 T0003 DBUG S1 Match index after sort: [48 48 48], majority[1]=48
+018403 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 50)
+018403 T0003 LEAD S1 Leader accept log [49]T3
+018403 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 51)
+018403 T0003 LEAD S1 Leader accept log [50]T3
+018404 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 52)
+018404 T0003 LEAD S1 Leader accept log [51]T3
+018404 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 53)
+018404 T0003 LEAD S1 Leader accept log [52]T3
+018405 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 54)
+018405 T0003 LEAD S1 Leader accept log [53]T3
+018405 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 55)
+018405 T0003 LEAD S1 Leader accept log [54]T3
+018406 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 56)
+018406 T0003 LEAD S1 Leader accept log [55]T3
+018406 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 57)
+018406 T0003 LEAD S1 Leader accept log [56]T3
+018407 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 58)
+018407 T0003 LEAD S1 Leader accept log [57]T3
+018407 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 59)
+018407 T0003 LEAD S1 Leader accept log [58]T3
+018408 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 60)
+018408 T0003 LEAD S1 Leader accept log [59]T3
+018408 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 61)
+018408 T0003 LEAD S1 Leader accept log [60]T3
+018409 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 62)
+018409 T0003 LEAD S1 Leader accept log [61]T3
+018409 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 63)
+018409 T0003 LEAD S1 Leader accept log [62]T3
+018410 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 64)
+018410 T0003 LEAD S1 Leader accept log [63]T3
+018957 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[48]T3, (48 63], CommitIdx:48
+018958 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[48]T3, (48 63], CommitIdx:48
+018961 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[48]T3, (48 63], CommitIdx:48
+018961 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+018961 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 64)
+018962 T0003 LOG2 S2 Follower append logs: (48, 63]
+018962 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[48]T3, (48 63], CommitIdx:48
+018962 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+018963 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 64)
+018963 T0003 LOG2 S0 Follower append logs: (48, 63]
+018963 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+018963 T0003 DBUG S1 Match index after sort: [48 63 63], majority[1]=63
+018963 T0003 APLY S1 Leader update the commit index 48->63
+018965 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 64)
+018965 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+018965 T0003 DBUG S1 Match index after sort: [63 63 63], majority[1]=63
+018966 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 64)
+018967 T0003 APLY S1 Apply log for [49, 63]
+019662 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[63]T3, (63 63], CommitIdx:63
+019662 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[63]T3, (63 63], CommitIdx:63
+019665 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[63]T3, (63 63], CommitIdx:63
+019665 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+019666 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[63]T3, (63 63], CommitIdx:63
+019666 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 64)
+019666 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+019666 T0003 LOG2 S2 Follower append logs: (63, 63]
+019666 T0003 APLY S2 Follower update the commit index 48->63
+019667 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 64)
+019667 T0003 LOG2 S0 Follower append logs: (63, 63]
+019667 T0003 APLY S0 Follower update the commit index 48->63
+019668 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+019668 T0003 DBUG S1 Match index after sort: [63 63 63], majority[1]=63
+019669 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 64)
+019669 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+019669 T0003 DBUG S1 Match index after sort: [63 63 63], majority[1]=63
+019670 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 64)
+019671 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 64)
+019671 T0003 APLY S2 Apply log for [49, 63]
+019672 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 64)
+019672 T0003 APLY S0 Apply log for [49, 63]
+019846 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 65)
+019846 T0003 LEAD S1 Leader accept log [64]T3
+019846 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 66)
+019846 T0003 LEAD S1 Leader accept log [65]T3
+019847 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 67)
+019847 T0003 LEAD S1 Leader accept log [66]T3
+019847 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 68)
+019847 T0003 LEAD S1 Leader accept log [67]T3
+019847 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 69)
+019847 T0003 LEAD S1 Leader accept log [68]T3
+019848 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 70)
+019848 T0003 LEAD S1 Leader accept log [69]T3
+019848 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 71)
+019848 T0003 LEAD S1 Leader accept log [70]T3
+019849 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 72)
+019849 T0003 LEAD S1 Leader accept log [71]T3
+019849 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 73)
+019849 T0003 LEAD S1 Leader accept log [72]T3
+019850 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 74)
+019850 T0003 LEAD S1 Leader accept log [73]T3
+019850 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 75)
+019850 T0003 LEAD S1 Leader accept log [74]T3
+019850 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 76)
+019850 T0003 LEAD S1 Leader accept log [75]T3
+019851 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 77)
+019851 T0003 LEAD S1 Leader accept log [76]T3
+019851 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 78)
+019851 T0003 LEAD S1 Leader accept log [77]T3
+020369 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[63]T3, (63 77], CommitIdx:63
+020370 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[63]T3, (63 77], CommitIdx:63
+020380 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[63]T3, (63 77], CommitIdx:63
+020380 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+020381 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 78)
+020382 T0003 LOG2 S0 Follower append logs: (63, 77]
+020382 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[63]T3, (63 77], CommitIdx:63
+020382 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+020391 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 78)
+020391 T0003 LOG2 S2 Follower append logs: (63, 77]
+020393 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+020393 T0003 DBUG S1 Match index after sort: [63 77 77], majority[1]=77
+020393 T0003 APLY S1 Leader update the commit index 63->77
+020393 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+020393 T0003 DBUG S1 Match index after sort: [77 77 77], majority[1]=77
+020394 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 78)
+020394 T0003 APLY S1 Apply log for [64, 77]
+021072 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[77]T3, (77 77], CommitIdx:77
+021073 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[77]T3, (77 77], CommitIdx:77
+021076 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[77]T3, (77 77], CommitIdx:77
+021076 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+021077 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 78)
+021077 T0003 LOG2 S2 Follower append logs: (77, 77]
+021077 T0003 APLY S2 Follower update the commit index 63->77
+021077 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[77]T3, (77 77], CommitIdx:77
+021077 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+021078 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 78)
+021078 T0003 LOG2 S0 Follower append logs: (77, 77]
+021078 T0003 APLY S0 Follower update the commit index 63->77
+021079 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+021080 T0003 DBUG S1 Match index after sort: [77 77 77], majority[1]=77
+021080 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+021080 T0003 DBUG S1 Match index after sort: [77 77 77], majority[1]=77
+021081 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 78)
+021081 T0003 APLY S2 Apply log for [64, 77]
+021082 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 78)
+021083 T0003 APLY S0 Apply log for [64, 77]
+021287 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 79)
+021287 T0003 LEAD S1 Leader accept log [78]T3
+021782 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[77]T3, (77 78], CommitIdx:77
+021782 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[77]T3, (77 78], CommitIdx:77
+021785 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[77]T3, (77 78], CommitIdx:77
+021786 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+021786 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 79)
+021786 T0003 LOG2 S0 Follower append logs: (77, 78]
+021786 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[77]T3, (77 78], CommitIdx:77
+021787 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+021787 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 79)
+021787 T0003 LOG2 S2 Follower append logs: (77, 78]
+021788 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+021788 T0003 DBUG S1 Match index after sort: [77 78 78], majority[1]=78
+021788 T0003 APLY S1 Leader update the commit index 77->78
+021788 T0003 APLY S1 Apply log for [78, 78]
+021789 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+021789 T0003 DBUG S1 Match index after sort: [78 78 78], majority[1]=78
+022483 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[78]T3, (78 78], CommitIdx:78
+022483 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[78]T3, (78 78], CommitIdx:78
+022486 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[78]T3, (78 78], CommitIdx:78
+022486 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+022486 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[78]T3, (78 78], CommitIdx:78
+022487 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+022487 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 79)
+022487 T0003 LOG2 S0 Follower append logs: (78, 78]
+022487 T0003 APLY S0 Follower update the commit index 77->78
+022487 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 79)
+022487 T0003 LOG2 S2 Follower append logs: (78, 78]
+022487 T0003 APLY S2 Follower update the commit index 77->78
+022488 T0003 APLY S0 Apply log for [78, 78]
+022488 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+022488 T0003 DBUG S1 Match index after sort: [78 78 78], majority[1]=78
+022488 T0003 APLY S2 Apply log for [78, 78]
+022489 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+022489 T0003 DBUG S1 Match index after sort: [78 78 78], majority[1]=78
+022516 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 80)
+022516 T0003 LEAD S1 Leader accept log [79]T3
+022517 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 81)
+022517 T0003 LEAD S1 Leader accept log [80]T3
+022517 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 82)
+022517 T0003 LEAD S1 Leader accept log [81]T3
+022517 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 83)
+022517 T0003 LEAD S1 Leader accept log [82]T3
+022518 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 84)
+022518 T0003 LEAD S1 Leader accept log [83]T3
+022518 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 85)
+022518 T0003 LEAD S1 Leader accept log [84]T3
+022519 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 86)
+022519 T0003 LEAD S1 Leader accept log [85]T3
+022519 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 87)
+022519 T0003 LEAD S1 Leader accept log [86]T3
+022520 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 88)
+022520 T0003 LEAD S1 Leader accept log [87]T3
+022520 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 89)
+022520 T0003 LEAD S1 Leader accept log [88]T3
+022521 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 90)
+022521 T0003 LEAD S1 Leader accept log [89]T3
+022521 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 91)
+022521 T0003 LEAD S1 Leader accept log [90]T3
+022522 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 92)
+022522 T0003 LEAD S1 Leader accept log [91]T3
+023188 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[78]T3, (78 91], CommitIdx:78
+023188 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[78]T3, (78 91], CommitIdx:78
+023191 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[78]T3, (78 91], CommitIdx:78
+023191 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+023192 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 92)
+023192 T0003 LOG2 S2 Follower append logs: (78, 91]
+023192 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[78]T3, (78 91], CommitIdx:78
+023193 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+023193 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+023193 T0003 DBUG S1 Match index after sort: [78 91 91], majority[1]=91
+023193 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 92)
+023193 T0003 LOG2 S0 Follower append logs: (78, 91]
+023193 T0003 APLY S1 Leader update the commit index 78->91
+023195 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+023195 T0003 DBUG S1 Match index after sort: [91 91 91], majority[1]=91
+023196 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 92)
+023198 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 92)
+023198 T0003 APLY S1 Apply log for [79, 91]
+023892 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[91]T3, (91 91], CommitIdx:91
+023893 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[91]T3, (91 91], CommitIdx:91
+023895 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[91]T3, (91 91], CommitIdx:91
+023896 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+023896 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[91]T3, (91 91], CommitIdx:91
+023896 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+023896 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 92)
+023896 T0003 LOG2 S2 Follower append logs: (91, 91]
+023896 T0003 APLY S2 Follower update the commit index 78->91
+023896 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 92)
+023896 T0003 LOG2 S0 Follower append logs: (91, 91]
+023896 T0003 APLY S0 Follower update the commit index 78->91
+023898 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+023898 T0003 DBUG S1 Match index after sort: [91 91 91], majority[1]=91
+023898 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+023898 T0003 DBUG S1 Match index after sort: [91 91 91], majority[1]=91
+023898 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 92)
+023899 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 92)
+023899 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 92)
+023900 T0003 APLY S0 Apply log for [79, 91]
+023901 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 92)
+023901 T0003 APLY S2 Apply log for [79, 91]
+023955 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 93)
+023956 T0003 LEAD S1 Leader accept log [92]T3
+023956 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 94)
+023956 T0003 LEAD S1 Leader accept log [93]T3
+023956 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 95)
+023956 T0003 LEAD S1 Leader accept log [94]T3
+023956 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 96)
+023956 T0003 LEAD S1 Leader accept log [95]T3
+023956 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 97)
+023956 T0003 LEAD S1 Leader accept log [96]T3
+023957 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 98)
+023957 T0003 LEAD S1 Leader accept log [97]T3
+024601 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[91]T3, (91 97], CommitIdx:91
+024601 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[91]T3, (91 97], CommitIdx:91
+024604 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[91]T3, (91 97], CommitIdx:91
+024604 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+024605 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[91]T3, (91 97], CommitIdx:91
+024605 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+024605 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 98)
+024605 T0003 LOG2 S2 Follower append logs: (91, 97]
+024605 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 98)
+024606 T0003 LOG2 S0 Follower append logs: (91, 97]
+024606 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+024606 T0003 DBUG S1 Match index after sort: [91 97 97], majority[1]=97
+024606 T0003 APLY S1 Leader update the commit index 91->97
+024606 T0003 APLY S1 Apply log for [92, 97]
+024607 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+024607 T0003 DBUG S1 Match index after sort: [97 97 97], majority[1]=97
+025308 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[97]T3, (97 97], CommitIdx:97
+025308 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[97]T3, (97 97], CommitIdx:97
+025312 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[97]T3, (97 97], CommitIdx:97
+025313 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+025313 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 98)
+025313 T0003 LOG2 S2 Follower append logs: (97, 97]
+025313 T0003 APLY S2 Follower update the commit index 91->97
+025312 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[97]T3, (97 97], CommitIdx:97
+025314 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+025314 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 98)
+025314 T0003 APLY S2 Apply log for [92, 97]
+025315 T0003 LOG2 S0 Follower append logs: (97, 97]
+025315 T0003 APLY S0 Follower update the commit index 91->97
+025316 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+025316 T0003 DBUG S1 Match index after sort: [97 97 97], majority[1]=97
+025316 T0003 APLY S0 Apply log for [92, 97]
+025317 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+025317 T0003 DBUG S1 Match index after sort: [97 97 97], majority[1]=97
+025391 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 99)
+025391 T0003 LEAD S1 Leader accept log [98]T3
+026013 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[97]T3, (97 98], CommitIdx:97
+026013 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[97]T3, (97 98], CommitIdx:97
+026016 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[97]T3, (97 98], CommitIdx:97
+026017 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+026017 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 99)
+026017 T0003 LOG2 S0 Follower append logs: (97, 98]
+026016 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[97]T3, (97 98], CommitIdx:97
+026018 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+026018 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 99)
+026018 T0003 LOG2 S2 Follower append logs: (97, 98]
+026019 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+026019 T0003 DBUG S1 Match index after sort: [97 98 98], majority[1]=98
+026019 T0003 APLY S1 Leader update the commit index 97->98
+026019 T0003 APLY S1 Apply log for [98, 98]
+026020 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+026020 T0003 DBUG S1 Match index after sort: [98 98 98], majority[1]=98
+026716 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[98]T3, (98 98], CommitIdx:98
+026716 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[98]T3, (98 98], CommitIdx:98
+026719 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[98]T3, (98 98], CommitIdx:98
+026719 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+026720 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 99)
+026720 T0003 LOG2 S2 Follower append logs: (98, 98]
+026720 T0003 APLY S2 Follower update the commit index 97->98
+026720 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[98]T3, (98 98], CommitIdx:98
+026720 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+026720 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 99)
+026721 T0003 LOG2 S0 Follower append logs: (98, 98]
+026721 T0003 APLY S0 Follower update the commit index 97->98
+026721 T0003 APLY S2 Apply log for [98, 98]
+026721 T0003 APLY S0 Apply log for [98, 98]
+026721 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+026722 T0003 DBUG S1 Match index after sort: [98 98 98], majority[1]=98
+026722 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+026722 T0003 DBUG S1 Match index after sort: [98 98 98], majority[1]=98
+026822 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 100)
+026822 T0003 LEAD S1 Leader accept log [99]T3
+026822 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 101)
+026822 T0003 LEAD S1 Leader accept log [100]T3
+026823 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 102)
+026823 T0003 LEAD S1 Leader accept log [101]T3
+026823 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 103)
+026823 T0003 LEAD S1 Leader accept log [102]T3
+026824 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 104)
+026824 T0003 LEAD S1 Leader accept log [103]T3
+026824 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 105)
+026824 T0003 LEAD S1 Leader accept log [104]T3
+026825 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 106)
+026825 T0003 LEAD S1 Leader accept log [105]T3
+026825 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 107)
+026825 T0003 LEAD S1 Leader accept log [106]T3
+026826 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 108)
+026826 T0003 LEAD S1 Leader accept log [107]T3
+026826 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 109)
+026826 T0003 LEAD S1 Leader accept log [108]T3
+026827 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 110)
+026827 T0003 LEAD S1 Leader accept log [109]T3
+026827 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 111)
+026828 T0003 LEAD S1 Leader accept log [110]T3
+026828 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 112)
+026828 T0003 LEAD S1 Leader accept log [111]T3
+026829 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 113)
+026829 T0003 LEAD S1 Leader accept log [112]T3
+026829 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 114)
+026829 T0003 LEAD S1 Leader accept log [113]T3
+027422 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[98]T3, (98 113], CommitIdx:98
+027422 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[98]T3, (98 113], CommitIdx:98
+027426 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[98]T3, (98 113], CommitIdx:98
+027426 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+027426 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[98]T3, (98 113], CommitIdx:98
+027426 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+027426 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 114)
+027426 T0003 LOG2 S2 Follower append logs: (98, 113]
+027427 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 114)
+027427 T0003 LOG2 S0 Follower append logs: (98, 113]
+027428 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+027428 T0003 DBUG S1 Match index after sort: [98 113 113], majority[1]=113
+027428 T0003 APLY S1 Leader update the commit index 98->113
+027429 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+027429 T0003 DBUG S1 Match index after sort: [113 113 113], majority[1]=113
+027430 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 114)
+027432 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 114)
+027432 T0003 APLY S1 Apply log for [99, 113]
+028133 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[113]T3, (113 113], CommitIdx:113
+028133 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[113]T3, (113 113], CommitIdx:113
+028136 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[113]T3, (113 113], CommitIdx:113
+028136 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+028137 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[113]T3, (113 113], CommitIdx:113
+028137 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+028137 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 114)
+028137 T0003 LOG2 S2 Follower append logs: (113, 113]
+028137 T0003 APLY S2 Follower update the commit index 98->113
+028137 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 114)
+028137 T0003 LOG2 S0 Follower append logs: (113, 113]
+028137 T0003 APLY S0 Follower update the commit index 98->113
+028138 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+028139 T0003 DBUG S1 Match index after sort: [113 113 113], majority[1]=113
+028139 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+028139 T0003 DBUG S1 Match index after sort: [113 113 113], majority[1]=113
+028141 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 114)
+028142 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 114)
+028145 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 114)
+028146 T0003 APLY S2 Apply log for [99, 113]
+028146 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 114)
+028146 T0003 APLY S0 Apply log for [99, 113]
+028266 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 115)
+028266 T0003 LEAD S1 Leader accept log [114]T3
+028267 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 116)
+028267 T0003 LEAD S1 Leader accept log [115]T3
+028268 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 117)
+028268 T0003 LEAD S1 Leader accept log [116]T3
+028268 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 118)
+028268 T0003 LEAD S1 Leader accept log [117]T3
+028268 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 119)
+028268 T0003 LEAD S1 Leader accept log [118]T3
+028269 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 120)
+028269 T0003 LEAD S1 Leader accept log [119]T3
+028269 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 121)
+028269 T0003 LEAD S1 Leader accept log [120]T3
+028270 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 122)
+028270 T0003 LEAD S1 Leader accept log [121]T3
+028270 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 123)
+028270 T0003 LEAD S1 Leader accept log [122]T3
+028270 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 124)
+028270 T0003 LEAD S1 Leader accept log [123]T3
+028271 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 125)
+028271 T0003 LEAD S1 Leader accept log [124]T3
+028271 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 126)
+028272 T0003 LEAD S1 Leader accept log [125]T3
+028272 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 127)
+028272 T0003 LEAD S1 Leader accept log [126]T3
+028272 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 128)
+028273 T0003 LEAD S1 Leader accept log [127]T3
+028835 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[113]T3, (113 127], CommitIdx:113
+028835 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[113]T3, (113 127], CommitIdx:113
+028838 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[113]T3, (113 127], CommitIdx:113
+028838 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+028839 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 128)
+028839 T0003 LOG2 S2 Follower append logs: (113, 127]
+028840 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[113]T3, (113 127], CommitIdx:113
+028840 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+028840 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 128)
+028840 T0003 LOG2 S0 Follower append logs: (113, 127]
+028840 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+028840 T0003 DBUG S1 Match index after sort: [113 127 127], majority[1]=127
+028841 T0003 APLY S1 Leader update the commit index 113->127
+028842 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 128)
+028843 T0003 APLY S1 Apply log for [114, 127]
+028843 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+028843 T0003 DBUG S1 Match index after sort: [127 127 127], majority[1]=127
+029539 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[127]T3, (127 127], CommitIdx:127
+029540 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[127]T3, (127 127], CommitIdx:127
+029542 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[127]T3, (127 127], CommitIdx:127
+029542 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+029543 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 128)
+029543 T0003 LOG2 S2 Follower append logs: (127, 127]
+029543 T0003 APLY S2 Follower update the commit index 113->127
+029543 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[127]T3, (127 127], CommitIdx:127
+029543 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+029544 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 128)
+029544 T0003 LOG2 S0 Follower append logs: (127, 127]
+029544 T0003 APLY S0 Follower update the commit index 113->127
+029545 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+029545 T0003 DBUG S1 Match index after sort: [127 127 127], majority[1]=127
+029546 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+029546 T0003 DBUG S1 Match index after sort: [127 127 127], majority[1]=127
+029547 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 128)
+029547 T0003 APLY S2 Apply log for [114, 127]
+029548 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 128)
+029548 T0003 APLY S0 Apply log for [114, 127]
+029705 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 129)
+029705 T0003 LEAD S1 Leader accept log [128]T3
+030249 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[127]T3, (127 128], CommitIdx:127
+030249 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[127]T3, (127 128], CommitIdx:127
+030252 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[127]T3, (127 128], CommitIdx:127
+030252 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+030252 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 129)
+030252 T0003 LOG2 S2 Follower append logs: (127, 128]
+030253 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[127]T3, (127 128], CommitIdx:127
+030253 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+030253 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 129)
+030254 T0003 LOG2 S0 Follower append logs: (127, 128]
+030254 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+030254 T0003 DBUG S1 Match index after sort: [127 128 128], majority[1]=128
+030254 T0003 APLY S1 Leader update the commit index 127->128
+030254 T0003 APLY S1 Apply log for [128, 128]
+030255 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+030255 T0003 DBUG S1 Match index after sort: [128 128 128], majority[1]=128
+030952 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[128]T3, (128 128], CommitIdx:128
+030952 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[128]T3, (128 128], CommitIdx:128
+030956 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[128]T3, (128 128], CommitIdx:128
+030956 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+030956 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 129)
+030956 T0003 LOG2 S2 Follower append logs: (128, 128]
+030956 T0003 APLY S2 Follower update the commit index 127->128
+030956 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[128]T3, (128 128], CommitIdx:128
+030957 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+030957 T0003 APLY S2 Apply log for [128, 128]
+030958 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 129)
+030958 T0003 LOG2 S0 Follower append logs: (128, 128]
+030958 T0003 APLY S0 Follower update the commit index 127->128
+030958 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+030958 T0003 DBUG S1 Match index after sort: [128 128 128], majority[1]=128
+030959 T0003 APLY S0 Apply log for [128, 128]
+030959 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+030959 T0003 DBUG S1 Match index after sort: [128 128 128], majority[1]=128
+031136 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 130)
+031136 T0003 LEAD S1 Leader accept log [129]T3
+031137 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 131)
+031137 T0003 LEAD S1 Leader accept log [130]T3
+031137 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 132)
+031137 T0003 LEAD S1 Leader accept log [131]T3
+031138 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 133)
+031138 T0003 LEAD S1 Leader accept log [132]T3
+031138 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 134)
+031138 T0003 LEAD S1 Leader accept log [133]T3
+031139 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 135)
+031139 T0003 LEAD S1 Leader accept log [134]T3
+031139 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 136)
+031139 T0003 LEAD S1 Leader accept log [135]T3
+031140 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 137)
+031140 T0003 LEAD S1 Leader accept log [136]T3
+031140 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 138)
+031140 T0003 LEAD S1 Leader accept log [137]T3
+031141 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 139)
+031141 T0003 LEAD S1 Leader accept log [138]T3
+031141 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 140)
+031141 T0003 LEAD S1 Leader accept log [139]T3
+031142 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 141)
+031142 T0003 LEAD S1 Leader accept log [140]T3
+031142 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 142)
+031142 T0003 LEAD S1 Leader accept log [141]T3
+031143 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 143)
+031143 T0003 LEAD S1 Leader accept log [142]T3
+031658 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[128]T3, (128 142], CommitIdx:128
+031658 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[128]T3, (128 142], CommitIdx:128
+031661 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[128]T3, (128 142], CommitIdx:128
+031661 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+031662 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 143)
+031662 T0003 LOG2 S2 Follower append logs: (128, 142]
+031662 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[128]T3, (128 142], CommitIdx:128
+031663 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+031663 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 143)
+031663 T0003 LOG2 S0 Follower append logs: (128, 142]
+031664 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+031664 T0003 DBUG S1 Match index after sort: [128 142 142], majority[1]=142
+031664 T0003 APLY S1 Leader update the commit index 128->142
+031665 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+031665 T0003 DBUG S1 Match index after sort: [142 142 142], majority[1]=142
+031666 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 143)
+031668 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 143)
+031668 T0003 APLY S1 Apply log for [129, 142]
+032359 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[142]T3, (142 142], CommitIdx:142
+032360 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[142]T3, (142 142], CommitIdx:142
+032362 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[142]T3, (142 142], CommitIdx:142
+032363 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+032363 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 143)
+032363 T0003 LOG2 S2 Follower append logs: (142, 142]
+032363 T0003 APLY S2 Follower update the commit index 128->142
+032364 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[142]T3, (142 142], CommitIdx:142
+032364 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+032365 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+032365 T0003 DBUG S1 Match index after sort: [142 142 142], majority[1]=142
+032365 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 143)
+032365 T0003 LOG2 S0 Follower append logs: (142, 142]
+032365 T0003 APLY S0 Follower update the commit index 128->142
+032366 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+032366 T0003 DBUG S1 Match index after sort: [142 142 142], majority[1]=142
+032367 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 143)
+032368 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 143)
+032369 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 143)
+032369 T0003 APLY S2 Apply log for [129, 142]
+032370 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 143)
+032370 T0003 APLY S0 Apply log for [129, 142]
+032573 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 144)
+032573 T0003 LEAD S1 Leader accept log [143]T3
+032574 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 145)
+032574 T0003 LEAD S1 Leader accept log [144]T3
+032574 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 146)
+032574 T0003 LEAD S1 Leader accept log [145]T3
+032575 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 147)
+032575 T0003 LEAD S1 Leader accept log [146]T3
+032575 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 148)
+032575 T0003 LEAD S1 Leader accept log [147]T3
+032575 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 149)
+032576 T0003 LEAD S1 Leader accept log [148]T3
+032576 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 150)
+032576 T0003 LEAD S1 Leader accept log [149]T3
+032576 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 151)
+032576 T0003 LEAD S1 Leader accept log [150]T3
+032577 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 152)
+032577 T0003 LEAD S1 Leader accept log [151]T3
+032577 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 153)
+032577 T0003 LEAD S1 Leader accept log [152]T3
+032578 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 154)
+032578 T0003 LEAD S1 Leader accept log [153]T3
+032578 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 155)
+032578 T0003 LEAD S1 Leader accept log [154]T3
+032579 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 156)
+032579 T0003 LEAD S1 Leader accept log [155]T3
+032579 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 157)
+032579 T0003 LEAD S1 Leader accept log [156]T3
+032580 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 158)
+032580 T0003 LEAD S1 Leader accept log [157]T3
+033067 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[142]T3, (142 157], CommitIdx:142
+033067 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[142]T3, (142 157], CommitIdx:142
+033072 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[142]T3, (142 157], CommitIdx:142
+033072 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+033072 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[142]T3, (142 157], CommitIdx:142
+033073 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 158)
+033073 T0003 LOG2 S2 Follower append logs: (142, 157]
+033073 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+033074 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 158)
+033074 T0003 LOG2 S0 Follower append logs: (142, 157]
+033075 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+033075 T0003 DBUG S1 Match index after sort: [142 157 157], majority[1]=157
+033075 T0003 APLY S1 Leader update the commit index 142->157
+033076 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+033076 T0003 DBUG S1 Match index after sort: [157 157 157], majority[1]=157
+033078 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 158)
+033078 T0003 APLY S1 Apply log for [143, 157]
+033768 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[157]T3, (157 157], CommitIdx:157
+033769 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[157]T3, (157 157], CommitIdx:157
+033772 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[157]T3, (157 157], CommitIdx:157
+033772 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+033773 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 158)
+033773 T0003 LOG2 S2 Follower append logs: (157, 157]
+033773 T0003 APLY S2 Follower update the commit index 142->157
+033774 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[157]T3, (157 157], CommitIdx:157
+033774 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+033775 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 158)
+033775 T0003 LOG2 S0 Follower append logs: (157, 157]
+033775 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+033775 T0003 DBUG S1 Match index after sort: [157 157 157], majority[1]=157
+033775 T0003 APLY S0 Follower update the commit index 142->157
+033778 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+033778 T0003 DBUG S1 Match index after sort: [157 157 157], majority[1]=157
+033778 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 158)
+033779 T0003 APLY S2 Apply log for [143, 157]
+033780 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 158)
+033780 T0003 APLY S0 Apply log for [143, 157]
+033811 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 159)
+033811 T0003 LEAD S1 Leader accept log [158]T3
+034476 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[157]T3, (157 158], CommitIdx:157
+034476 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[157]T3, (157 158], CommitIdx:157
+034479 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[157]T3, (157 158], CommitIdx:157
+034480 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+034480 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 159)
+034480 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[157]T3, (157 158], CommitIdx:157
+034480 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+034480 T0003 LOG2 S2 Follower append logs: (157, 158]
+034481 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 159)
+034481 T0003 LOG2 S0 Follower append logs: (157, 158]
+034483 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+034483 T0003 DBUG S1 Match index after sort: [157 158 158], majority[1]=158
+034483 T0003 APLY S1 Leader update the commit index 157->158
+034483 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+034483 T0003 DBUG S1 Match index after sort: [158 158 158], majority[1]=158
+034483 T0003 APLY S1 Apply log for [158, 158]
+035182 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[158]T3, (158 158], CommitIdx:158
+035182 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[158]T3, (158 158], CommitIdx:158
+035185 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[158]T3, (158 158], CommitIdx:158
+035185 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[158]T3, (158 158], CommitIdx:158
+035185 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+035185 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+035186 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 159)
+035186 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 159)
+035186 T0003 LOG2 S0 Follower append logs: (158, 158]
+035186 T0003 LOG2 S2 Follower append logs: (158, 158]
+035186 T0003 APLY S0 Follower update the commit index 157->158
+035186 T0003 APLY S2 Follower update the commit index 157->158
+035187 T0003 APLY S0 Apply log for [158, 158]
+035187 T0003 APLY S2 Apply log for [158, 158]
+035188 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+035188 T0003 DBUG S1 Match index after sort: [158 158 158], majority[1]=158
+035188 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+035188 T0003 DBUG S1 Match index after sort: [158 158 158], majority[1]=158
+035245 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 160)
+035246 T0003 LEAD S1 Leader accept log [159]T3
+035246 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 161)
+035246 T0003 LEAD S1 Leader accept log [160]T3
+035247 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 162)
+035247 T0003 LEAD S1 Leader accept log [161]T3
+035247 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 163)
+035247 T0003 LEAD S1 Leader accept log [162]T3
+035248 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 164)
+035248 T0003 LEAD S1 Leader accept log [163]T3
+035248 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 165)
+035248 T0003 LEAD S1 Leader accept log [164]T3
+035249 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 166)
+035249 T0003 LEAD S1 Leader accept log [165]T3
+035249 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 167)
+035249 T0003 LEAD S1 Leader accept log [166]T3
+035250 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 168)
+035250 T0003 LEAD S1 Leader accept log [167]T3
+035250 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 169)
+035250 T0003 LEAD S1 Leader accept log [168]T3
+035251 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 170)
+035251 T0003 LEAD S1 Leader accept log [169]T3
+035251 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 171)
+035251 T0003 LEAD S1 Leader accept log [170]T3
+035252 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 172)
+035252 T0003 LEAD S1 Leader accept log [171]T3
+035253 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 173)
+035253 T0003 LEAD S1 Leader accept log [172]T3
+035886 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[158]T3, (158 172], CommitIdx:158
+035886 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[158]T3, (158 172], CommitIdx:158
+035890 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[158]T3, (158 172], CommitIdx:158
+035890 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+035891 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 173)
+035891 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[158]T3, (158 172], CommitIdx:158
+035891 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+035891 T0003 LOG2 S2 Follower append logs: (158, 172]
+035892 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 173)
+035892 T0003 LOG2 S0 Follower append logs: (158, 172]
+035893 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+035893 T0003 DBUG S1 Match index after sort: [158 172 172], majority[1]=172
+035893 T0003 APLY S1 Leader update the commit index 158->172
+035894 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+035894 T0003 DBUG S1 Match index after sort: [172 172 172], majority[1]=172
+035896 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 173)
+035898 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 173)
+035898 T0003 APLY S1 Apply log for [159, 172]
+036591 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[172]T3, (172 172], CommitIdx:172
+036591 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[172]T3, (172 172], CommitIdx:172
+036594 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[172]T3, (172 172], CommitIdx:172
+036595 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+036594 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[172]T3, (172 172], CommitIdx:172
+036595 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 173)
+036595 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+036596 T0003 LOG2 S2 Follower append logs: (172, 172]
+036596 T0003 APLY S2 Follower update the commit index 158->172
+036596 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 173)
+036596 T0003 LOG2 S0 Follower append logs: (172, 172]
+036596 T0003 APLY S0 Follower update the commit index 158->172
+036598 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+036602 T0003 DBUG S1 Match index after sort: [172 172 172], majority[1]=172
+036602 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+036602 T0003 DBUG S1 Match index after sort: [172 172 172], majority[1]=172
+036606 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 173)
+036613 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 173)
+036617 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 173)
+036617 T0003 APLY S0 Apply log for [159, 172]
+036618 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 173)
+036618 T0003 APLY S2 Apply log for [159, 172]
+036685 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 174)
+036685 T0003 LEAD S1 Leader accept log [173]T3
+036686 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 175)
+036686 T0003 LEAD S1 Leader accept log [174]T3
+036686 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 176)
+036686 T0003 LEAD S1 Leader accept log [175]T3
+036686 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 177)
+036687 T0003 LEAD S1 Leader accept log [176]T3
+036687 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 178)
+036687 T0003 LEAD S1 Leader accept log [177]T3
+036687 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 179)
+036687 T0003 LEAD S1 Leader accept log [178]T3
+036688 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 180)
+036688 T0003 LEAD S1 Leader accept log [179]T3
+036688 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 181)
+036688 T0003 LEAD S1 Leader accept log [180]T3
+036689 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 182)
+036689 T0003 LEAD S1 Leader accept log [181]T3
+036689 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 183)
+036689 T0003 LEAD S1 Leader accept log [182]T3
+036689 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 184)
+036689 T0003 LEAD S1 Leader accept log [183]T3
+036690 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 185)
+036690 T0003 LEAD S1 Leader accept log [184]T3
+036691 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 186)
+036691 T0003 LEAD S1 Leader accept log [185]T3
+036691 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 187)
+036692 T0003 LEAD S1 Leader accept log [186]T3
+037295 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[172]T3, (172 186], CommitIdx:172
+037295 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[172]T3, (172 186], CommitIdx:172
+037300 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[172]T3, (172 186], CommitIdx:172
+037300 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+037300 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[172]T3, (172 186], CommitIdx:172
+037301 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+037301 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 187)
+037301 T0003 LOG2 S2 Follower append logs: (172, 186]
+037301 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 187)
+037302 T0003 LOG2 S0 Follower append logs: (172, 186]
+037303 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+037303 T0003 DBUG S1 Match index after sort: [172 186 186], majority[1]=186
+037303 T0003 APLY S1 Leader update the commit index 172->186
+037303 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+037304 T0003 DBUG S1 Match index after sort: [186 186 186], majority[1]=186
+037307 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 187)
+037307 T0003 APLY S1 Apply log for [173, 186]
+037999 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[186]T3, (186 186], CommitIdx:186
+038000 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[186]T3, (186 186], CommitIdx:186
+038004 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[186]T3, (186 186], CommitIdx:186
+038004 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+038004 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[186]T3, (186 186], CommitIdx:186
+038005 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+038006 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 187)
+038006 T0003 LOG2 S0 Follower append logs: (186, 186]
+038006 T0003 APLY S0 Follower update the commit index 172->186
+038005 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 187)
+038007 T0003 LOG2 S2 Follower append logs: (186, 186]
+038007 T0003 APLY S2 Follower update the commit index 172->186
+038008 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+038008 T0003 DBUG S1 Match index after sort: [186 186 186], majority[1]=186
+038010 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+038010 T0003 DBUG S1 Match index after sort: [186 186 186], majority[1]=186
+038010 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 187)
+038011 T0003 APLY S2 Apply log for [173, 186]
+038012 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 187)
+038012 T0003 APLY S0 Apply log for [173, 186]
+038123 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 188)
+038123 T0003 LEAD S1 Leader accept log [187]T3
+038701 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[186]T3, (186 187], CommitIdx:186
+038701 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[186]T3, (186 187], CommitIdx:186
+038704 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[186]T3, (186 187], CommitIdx:186
+038705 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+038705 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[186]T3, (186 187], CommitIdx:186
+038705 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+038705 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 188)
+038705 T0003 LOG2 S0 Follower append logs: (186, 187]
+038705 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 188)
+038705 T0003 LOG2 S2 Follower append logs: (186, 187]
+038706 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+038706 T0003 DBUG S1 Match index after sort: [186 187 187], majority[1]=187
+038706 T0003 APLY S1 Leader update the commit index 186->187
+038706 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+038706 T0003 DBUG S1 Match index after sort: [187 187 187], majority[1]=187
+038707 T0003 APLY S1 Apply log for [187, 187]
+039412 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[187]T3, (187 187], CommitIdx:187
+039412 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[187]T3, (187 187], CommitIdx:187
+039415 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[187]T3, (187 187], CommitIdx:187
+039416 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+039416 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 188)
+039416 T0003 LOG2 S0 Follower append logs: (187, 187]
+039416 T0003 APLY S0 Follower update the commit index 186->187
+039416 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[187]T3, (187 187], CommitIdx:187
+039417 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+039417 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 188)
+039417 T0003 LOG2 S2 Follower append logs: (187, 187]
+039417 T0003 APLY S2 Follower update the commit index 186->187
+039417 T0003 APLY S0 Apply log for [187, 187]
+039418 T0003 APLY S2 Apply log for [187, 187]
+039418 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+039418 T0003 DBUG S1 Match index after sort: [187 187 187], majority[1]=187
+039419 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+039419 T0003 DBUG S1 Match index after sort: [187 187 187], majority[1]=187
+039555 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 189)
+039555 T0003 LEAD S1 Leader accept log [188]T3
+039556 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 190)
+039556 T0003 LEAD S1 Leader accept log [189]T3
+039557 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 191)
+039557 T0003 LEAD S1 Leader accept log [190]T3
+039558 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 192)
+039558 T0003 LEAD S1 Leader accept log [191]T3
+039558 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 193)
+039559 T0003 LEAD S1 Leader accept log [192]T3
+039559 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 194)
+039559 T0003 LEAD S1 Leader accept log [193]T3
+039560 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 195)
+039560 T0003 LEAD S1 Leader accept log [194]T3
+039561 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 196)
+039561 T0003 LEAD S1 Leader accept log [195]T3
+039562 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 197)
+039562 T0003 LEAD S1 Leader accept log [196]T3
+039562 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 198)
+039563 T0003 LEAD S1 Leader accept log [197]T3
+040118 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[187]T3, (187 197], CommitIdx:187
+040118 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[187]T3, (187 197], CommitIdx:187
+040122 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[187]T3, (187 197], CommitIdx:187
+040122 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+040122 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[187]T3, (187 197], CommitIdx:187
+040122 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+040122 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 198)
+040122 T0003 LOG2 S0 Follower append logs: (187, 197]
+040123 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 198)
+040123 T0003 LOG2 S2 Follower append logs: (187, 197]
+040124 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+040124 T0003 DBUG S1 Match index after sort: [187 197 197], majority[1]=197
+040124 T0003 APLY S1 Leader update the commit index 187->197
+040126 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+040126 T0003 DBUG S1 Match index after sort: [197 197 197], majority[1]=197
+040127 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 198)
+040127 T0003 APLY S1 Apply log for [188, 197]
+040825 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[197]T3, (197 197], CommitIdx:197
+040825 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[197]T3, (197 197], CommitIdx:197
+040828 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[197]T3, (197 197], CommitIdx:197
+040828 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+040829 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 198)
+040829 T0003 LOG2 S2 Follower append logs: (197, 197]
+040829 T0003 APLY S2 Follower update the commit index 187->197
+040829 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[197]T3, (197 197], CommitIdx:197
+040829 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+040830 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 198)
+040830 T0003 LOG2 S0 Follower append logs: (197, 197]
+040830 T0003 APLY S0 Follower update the commit index 187->197
+040831 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+040831 T0003 DBUG S1 Match index after sort: [197 197 197], majority[1]=197
+040832 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+040832 T0003 DBUG S1 Match index after sort: [197 197 197], majority[1]=197
+040832 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 198)
+040833 T0003 APLY S2 Apply log for [188, 197]
+040833 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 198)
+040834 T0003 APLY S0 Apply log for [188, 197]
+040998 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 199)
+040998 T0003 LEAD S1 Leader accept log [198]T3
+040999 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 200)
+040999 T0003 LEAD S1 Leader accept log [199]T3
+040999 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 201)
+040999 T0003 LEAD S1 Leader accept log [200]T3
+041000 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 202)
+041000 T0003 LEAD S1 Leader accept log [201]T3
+041001 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 203)
+041001 T0003 LEAD S1 Leader accept log [202]T3
+041001 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 204)
+041002 T0003 LEAD S1 Leader accept log [203]T3
+041003 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 205)
+041003 T0003 LEAD S1 Leader accept log [204]T3
+041531 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[197]T3, (197 204], CommitIdx:197
+041531 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[197]T3, (197 204], CommitIdx:197
+041535 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[197]T3, (197 204], CommitIdx:197
+041535 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+041536 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 205)
+041536 T0003 LOG2 S2 Follower append logs: (197, 204]
+041536 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[197]T3, (197 204], CommitIdx:197
+041536 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+041537 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 205)
+041537 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+041537 T0003 DBUG S1 Match index after sort: [197 204 204], majority[1]=204
+041537 T0003 APLY S1 Leader update the commit index 197->204
+041537 T0003 LOG2 S0 Follower append logs: (197, 204]
+041541 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 205)
+041541 T0003 APLY S1 Apply log for [198, 204]
+041541 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+041541 T0003 DBUG S1 Match index after sort: [204 204 204], majority[1]=204
+042242 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[204]T3, (204 204], CommitIdx:204
+042242 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[204]T3, (204 204], CommitIdx:204
+042246 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[204]T3, (204 204], CommitIdx:204
+042246 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[204]T3, (204 204], CommitIdx:204
+042246 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+042246 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+042246 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 205)
+042246 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 205)
+042247 T0003 LOG2 S2 Follower append logs: (204, 204]
+042247 T0003 APLY S2 Follower update the commit index 197->204
+042246 T0003 LOG2 S0 Follower append logs: (204, 204]
+042247 T0003 APLY S0 Follower update the commit index 197->204
+042248 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+042248 T0003 DBUG S1 Match index after sort: [204 204 204], majority[1]=204
+042249 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+042249 T0003 DBUG S1 Match index after sort: [204 204 204], majority[1]=204
+042249 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 205)
+042250 T0003 APLY S0 Apply log for [198, 204]
+042251 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 205)
+042251 T0003 APLY S2 Apply log for [198, 204]
+042436 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 206)
+042436 T0003 LEAD S1 Leader accept log [205]T3
+042947 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[204]T3, (204 205], CommitIdx:204
+042947 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[204]T3, (204 205], CommitIdx:204
+042950 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[204]T3, (204 205], CommitIdx:204
+042950 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+042951 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 206)
+042951 T0003 LOG2 S2 Follower append logs: (204, 205]
+042951 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[204]T3, (204 205], CommitIdx:204
+042951 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+042952 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 206)
+042952 T0003 LOG2 S0 Follower append logs: (204, 205]
+042952 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+042953 T0003 DBUG S1 Match index after sort: [204 205 205], majority[1]=205
+042953 T0003 APLY S1 Leader update the commit index 204->205
+042953 T0003 APLY S1 Apply log for [205, 205]
+042955 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+042955 T0003 DBUG S1 Match index after sort: [205 205 205], majority[1]=205
+043652 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[205]T3, (205 205], CommitIdx:205
+043652 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[205]T3, (205 205], CommitIdx:205
+043655 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[205]T3, (205 205], CommitIdx:205
+043655 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+043656 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[205]T3, (205 205], CommitIdx:205
+043656 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+043656 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 206)
+043656 T0003 LOG2 S2 Follower append logs: (205, 205]
+043656 T0003 APLY S2 Follower update the commit index 204->205
+043656 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 206)
+043656 T0003 LOG2 S0 Follower append logs: (205, 205]
+043656 T0003 APLY S0 Follower update the commit index 204->205
+043657 T0003 APLY S2 Apply log for [205, 205]
+043657 T0003 APLY S0 Apply log for [205, 205]
+043657 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+043658 T0003 DBUG S1 Match index after sort: [205 205 205], majority[1]=205
+043658 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+043658 T0003 DBUG S1 Match index after sort: [205 205 205], majority[1]=205
+043664 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 207)
+043664 T0003 LEAD S1 Leader accept log [206]T3
+043665 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 208)
+043665 T0003 LEAD S1 Leader accept log [207]T3
+043665 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 209)
+043665 T0003 LEAD S1 Leader accept log [208]T3
+043666 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 210)
+043666 T0003 LEAD S1 Leader accept log [209]T3
+043666 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 211)
+043667 T0003 LEAD S1 Leader accept log [210]T3
+043668 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 212)
+043668 T0003 LEAD S1 Leader accept log [211]T3
+043668 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 213)
+043669 T0003 LEAD S1 Leader accept log [212]T3
+043669 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 214)
+043669 T0003 LEAD S1 Leader accept log [213]T3
+043670 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 215)
+043670 T0003 LEAD S1 Leader accept log [214]T3
+043671 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 216)
+043671 T0003 LEAD S1 Leader accept log [215]T3
+043672 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 217)
+043672 T0003 LEAD S1 Leader accept log [216]T3
+043673 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 218)
+043673 T0003 LEAD S1 Leader accept log [217]T3
+043674 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 219)
+043674 T0003 LEAD S1 Leader accept log [218]T3
+044358 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[205]T3, (205 218], CommitIdx:205
+044358 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[205]T3, (205 218], CommitIdx:205
+044362 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[205]T3, (205 218], CommitIdx:205
+044362 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+044363 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 219)
+044363 T0003 LOG2 S2 Follower append logs: (205, 218]
+044363 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[205]T3, (205 218], CommitIdx:205
+044363 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+044364 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 219)
+044364 T0003 LOG2 S0 Follower append logs: (205, 218]
+044364 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+044364 T0003 DBUG S1 Match index after sort: [205 218 218], majority[1]=218
+044364 T0003 APLY S1 Leader update the commit index 205->218
+044366 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+044367 T0003 DBUG S1 Match index after sort: [218 218 218], majority[1]=218
+044368 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 219)
+044368 T0003 APLY S1 Apply log for [206, 218]
+045062 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[218]T3, (218 218], CommitIdx:218
+045062 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[218]T3, (218 218], CommitIdx:218
+045065 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[218]T3, (218 218], CommitIdx:218
+045065 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+045065 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 219)
+045066 T0003 LOG2 S2 Follower append logs: (218, 218]
+045066 T0003 APLY S2 Follower update the commit index 205->218
+045066 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[218]T3, (218 218], CommitIdx:218
+045066 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+045067 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 219)
+045067 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+045067 T0003 DBUG S1 Match index after sort: [218 218 218], majority[1]=218
+045067 T0003 LOG2 S0 Follower append logs: (218, 218]
+045068 T0003 APLY S0 Follower update the commit index 205->218
+045069 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+045069 T0003 DBUG S1 Match index after sort: [218 218 218], majority[1]=218
+045070 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 219)
+045071 T0003 APLY S2 Apply log for [206, 218]
+045074 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 219)
+045074 T0003 APLY S0 Apply log for [206, 218]
+045105 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 220)
+045105 T0003 LEAD S1 Leader accept log [219]T3
+045106 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 221)
+045106 T0003 LEAD S1 Leader accept log [220]T3
+045106 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 222)
+045106 T0003 LEAD S1 Leader accept log [221]T3
+045107 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 223)
+045107 T0003 LEAD S1 Leader accept log [222]T3
+045108 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 224)
+045108 T0003 LEAD S1 Leader accept log [223]T3
+045108 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 225)
+045108 T0003 LEAD S1 Leader accept log [224]T3
+045109 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 226)
+045109 T0003 LEAD S1 Leader accept log [225]T3
+045109 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 227)
+045109 T0003 LEAD S1 Leader accept log [226]T3
+045110 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 228)
+045110 T0003 LEAD S1 Leader accept log [227]T3
+045110 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 229)
+045110 T0003 LEAD S1 Leader accept log [228]T3
+045111 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 230)
+045111 T0003 LEAD S1 Leader accept log [229]T3
+045111 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 231)
+045111 T0003 LEAD S1 Leader accept log [230]T3
+045112 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 232)
+045112 T0003 LEAD S1 Leader accept log [231]T3
+045771 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[218]T3, (218 231], CommitIdx:218
+045771 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[218]T3, (218 231], CommitIdx:218
+045774 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[218]T3, (218 231], CommitIdx:218
+045774 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+045774 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[218]T3, (218 231], CommitIdx:218
+045774 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+045775 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 232)
+045775 T0003 LOG2 S2 Follower append logs: (218, 231]
+045775 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 232)
+045775 T0003 LOG2 S0 Follower append logs: (218, 231]
+045776 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+045776 T0003 DBUG S1 Match index after sort: [218 231 231], majority[1]=231
+045776 T0003 APLY S1 Leader update the commit index 218->231
+045777 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+045777 T0003 DBUG S1 Match index after sort: [231 231 231], majority[1]=231
+045779 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 232)
+045782 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 232)
+045782 T0003 APLY S1 Apply log for [219, 231]
+046475 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[231]T3, (231 231], CommitIdx:231
+046476 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[231]T3, (231 231], CommitIdx:231
+046479 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[231]T3, (231 231], CommitIdx:231
+046479 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+046479 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[231]T3, (231 231], CommitIdx:231
+046479 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+046479 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 232)
+046479 T0003 LOG2 S0 Follower append logs: (231, 231]
+046479 T0003 APLY S0 Follower update the commit index 218->231
+046480 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 232)
+046480 T0003 LOG2 S2 Follower append logs: (231, 231]
+046481 T0003 APLY S2 Follower update the commit index 218->231
+046481 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+046481 T0003 DBUG S1 Match index after sort: [231 231 231], majority[1]=231
+046483 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+046483 T0003 DBUG S1 Match index after sort: [231 231 231], majority[1]=231
+046484 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 232)
+046485 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 232)
+046487 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 232)
+046487 T0003 APLY S2 Apply log for [219, 231]
+046488 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 232)
+046488 T0003 APLY S0 Apply log for [219, 231]
+046549 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 233)
+046549 T0003 LEAD S1 Leader accept log [232]T3
+047180 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[231]T3, (231 232], CommitIdx:231
+047180 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[231]T3, (231 232], CommitIdx:231
+047183 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[231]T3, (231 232], CommitIdx:231
+047183 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+047184 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 233)
+047184 T0003 LOG2 S2 Follower append logs: (231, 232]
+047184 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[231]T3, (231 232], CommitIdx:231
+047185 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+047185 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 233)
+047185 T0003 LOG2 S0 Follower append logs: (231, 232]
+047186 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+047186 T0003 DBUG S1 Match index after sort: [231 232 232], majority[1]=232
+047186 T0003 APLY S1 Leader update the commit index 231->232
+047186 T0003 APLY S1 Apply log for [232, 232]
+047188 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+047188 T0003 DBUG S1 Match index after sort: [232 232 232], majority[1]=232
+047889 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[232]T3, (232 232], CommitIdx:232
+047890 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[232]T3, (232 232], CommitIdx:232
+047892 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[232]T3, (232 232], CommitIdx:232
+047893 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+047893 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 233)
+047893 T0003 LOG2 S2 Follower append logs: (232, 232]
+047893 T0003 APLY S2 Follower update the commit index 231->232
+047893 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[232]T3, (232 232], CommitIdx:232
+047894 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+047894 T0003 APLY S2 Apply log for [232, 232]
+047894 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 233)
+047894 T0003 LOG2 S0 Follower append logs: (232, 232]
+047895 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+047895 T0003 APLY S0 Follower update the commit index 231->232
+047895 T0003 DBUG S1 Match index after sort: [232 232 232], majority[1]=232
+047895 T0003 APLY S0 Apply log for [232, 232]
+047897 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+047897 T0003 DBUG S1 Match index after sort: [232 232 232], majority[1]=232
+047994 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 234)
+047994 T0003 LEAD S1 Leader accept log [233]T3
+047994 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 235)
+047994 T0003 LEAD S1 Leader accept log [234]T3
+047995 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 236)
+047995 T0003 LEAD S1 Leader accept log [235]T3
+047995 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 237)
+047995 T0003 LEAD S1 Leader accept log [236]T3
+047995 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 238)
+047995 T0003 LEAD S1 Leader accept log [237]T3
+047996 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 239)
+047996 T0003 LEAD S1 Leader accept log [238]T3
+047996 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 240)
+047996 T0003 LEAD S1 Leader accept log [239]T3
+047997 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 241)
+047997 T0003 LEAD S1 Leader accept log [240]T3
+047997 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 242)
+047997 T0003 LEAD S1 Leader accept log [241]T3
+048593 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[232]T3, (232 241], CommitIdx:232
+048594 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[232]T3, (232 241], CommitIdx:232
+048597 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[232]T3, (232 241], CommitIdx:232
+048597 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+048598 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[232]T3, (232 241], CommitIdx:232
+048598 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 242)
+048598 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+048598 T0003 LOG2 S0 Follower append logs: (232, 241]
+048598 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 242)
+048599 T0003 LOG2 S2 Follower append logs: (232, 241]
+048599 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+048599 T0003 DBUG S1 Match index after sort: [232 241 241], majority[1]=241
+048599 T0003 APLY S1 Leader update the commit index 232->241
+048601 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+048601 T0003 DBUG S1 Match index after sort: [241 241 241], majority[1]=241
+048603 T0003 PERS S1 Persist: T3, VotedFor: 1, Log: [0: 242)
+048603 T0003 APLY S1 Apply log for [233, 241]
+049301 T0003 DBUG S1 -> S0, Append, Leader-1, T3, Prev:[241]T3, (241 241], CommitIdx:241
+049302 T0003 DBUG S1 -> S2, Append, Leader-1, T3, Prev:[241]T3, (241 241], CommitIdx:241
+049304 T0003 DBUG S2 <- S1, Appended, Args=Leader-1, T3, Prev:[241]T3, (241 241], CommitIdx:241
+049304 T0003 LOG1 S2 Follower -> Follower, For T3->T3
+049305 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 242)
+049305 T0003 LOG2 S2 Follower append logs: (241, 241]
+049305 T0003 APLY S2 Follower update the commit index 232->241
+049305 T0003 DBUG S0 <- S1, Appended, Args=Leader-1, T3, Prev:[241]T3, (241 241], CommitIdx:241
+049306 T0003 LOG1 S0 Follower -> Follower, For T3->T3
+049306 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 242)
+049307 T0003 DBUG S1 -> S2, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+049307 T0003 LOG2 S0 Follower append logs: (241, 241]
+049307 T0003 DBUG S1 Match index after sort: [241 241 241], majority[1]=241
+049307 T0003 APLY S0 Follower update the commit index 232->241
+049309 T0003 PERS S2 Persist: T3, VotedFor: 1, Log: [0: 242)
+049310 T0003 DBUG S1 -> S0, Append, Reply=T3, Success:true, ConfilictTerm: [0]T0
+049310 T0003 APLY S2 Apply log for [233, 241]
+049310 T0003 DBUG S1 Match index after sort: [241 241 241], majority[1]=241
+049311 T0003 PERS S0 Persist: T3, VotedFor: 1, Log: [0: 242)
+049311 T0003 APLY S0 Apply log for [233, 241]
+  ... Passed --   4.9  3  148   54998  241
+PASS
+ok  	6.5840/raft	4.949s
