@@ -97,6 +97,7 @@ type Raft struct {
 	commitIndex int
 	lastApplied int
 	applyCh     chan ApplyMsg
+	snapPending bool
 	applyCond   *sync.Cond
 
 	electionStart   time.Time
@@ -158,19 +159,6 @@ func (rf *Raft) GetState() (int, bool) {
 	defer rf.mu.Unlock()
 	// Your code here (3A).
 	return rf.currentTerm, rf.role == Leader
-}
-
-// the service says it has created a snapshot that has
-// all info up to and including index. this means the
-// service no longer needs the log through (and including)
-// that index. Raft should now trim its log as much as possible.
-func (rf *Raft) Snapshot(index int, snapshot []byte) {
-	// Your code here (3D).
-	rf.mu.Lock()
-	defer rf.mu.Unlock()
-
-	rf.log.doSnapshot(index, snapshot)
-	rf.persistLocked()
 }
 
 // the service using Raft (e.g. a k/v server) wants to start
@@ -251,12 +239,15 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.log = NewLog(InvalidIndex, InvalidTerm, nil, nil)
 
 	// initialize the leader's view silce
-	rf.matchIndex = make([]int, len(peers))
 	rf.nextIndex = make([]int, len(peers))
+	rf.matchIndex = make([]int, len(peers))
 
 	// initialize the fields for apply loop
 	rf.applyCh = applyCh
 	rf.applyCond = sync.NewCond(&rf.mu)
+	rf.commitIndex = 0
+	rf.lastApplied = 0
+	rf.snapPending = false
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())

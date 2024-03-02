@@ -123,6 +123,8 @@ func (rl *RaftLog) String() string {
 	return terms
 }
 
+// snapshot in the index
+// do check point from the app layer
 func (rl *RaftLog) doSnapshot(index int, snapshot []byte) {
 	// since idx() will use rl.snapLastIdx, so we should keep it first
 	idx := rl.idx(index)
@@ -137,5 +139,19 @@ func (rl *RaftLog) doSnapshot(index int, snapshot []byte) {
 		Term: rl.snapLastTerm,
 	})
 	newLog = append(newLog, rl.tailLog[idx+1:]...)
+	rl.tailLog = newLog
+}
+
+// install snap shot from raft layer
+func (rl *RaftLog) installSnapshot(index, term int, snapshot []byte) {
+	rl.snapLastIdx = index
+	rl.snapLastTerm = term
+	rl.snapshot = snapshot
+
+	// make a new log array
+	newLog := make([]LogEntry, 0, 1)
+	newLog = append(newLog, LogEntry{
+		Term: term,
+	})
 	rl.tailLog = newLog
 }

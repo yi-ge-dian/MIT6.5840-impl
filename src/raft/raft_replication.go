@@ -199,14 +199,25 @@ func (rf *Raft) startReplication(term int) bool {
 		}
 
 		prevLogIndex := rf.nextIndex[peer] - 1
-		prevLogTerm := rf.log.at(prevLogIndex).Term
+		if prevLogIndex < rf.log.snapLastIdx {
+			args := &InstallSnapshotArgs{
+				Term:              rf.currentTerm,
+				LeaderId:          rf.me,
+				LastIncludedIndex: rf.log.snapLastIdx,
+				LastIncludedTerm:  rf.log.snapLastTerm,
+				Snapshot:          rf.log.snapshot,
+			}
+			LOG(rf.me, rf.currentTerm, DDebug, "-> S%d, SendSnap, Args=%v", peer, args.String())
+			go rf.installOnPeer(peer, term, args)
+		}
 
+		prevLogTerm := rf.log.at(prevLogIndex).Term
 		args := &AppendEntriesArgs{
 			Term:         rf.currentTerm,
 			LeaderId:     rf.me,
 			PrevLogIndex: prevLogIndex,
 			PrevLogTerm:  prevLogTerm,
-			Entries:      rf.log.tail(prevLogIndex+1),
+			Entries:      rf.log.tail(prevLogIndex + 1),
 			LeaderCommit: rf.commitIndex,
 		}
 
