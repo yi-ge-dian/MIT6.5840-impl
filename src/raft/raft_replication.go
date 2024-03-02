@@ -161,12 +161,19 @@ func (rf *Raft) startReplication(term int) bool {
 			}
 
 			// avoid unordered reply
+			// avoid the late reply move the nextIndex forward again
 			if rf.nextIndex[peer] > prevIndex {
 				rf.nextIndex[peer] = prevIndex
 			}
 
+			nextPrevIdx := rf.nextIndex[peer] - 1
+			nextPrevTerm := InvalidTerm
+			if nextPrevIdx >= rf.log.snapLastIdx {
+				nextPrevTerm = rf.log.at(nextPrevIdx).Term
+			}
+
 			LOG(rf.me, rf.currentTerm, DLog, "-> S%d, Not matched at Prev=[%d]T%d, Try next Prev=[%d]T%d",
-				peer, args.PrevLogIndex, rf.log.at(args.PrevLogIndex).Term, rf.nextIndex[peer]-1, rf.log.at(rf.nextIndex[peer]-1).Term)
+				peer, args.PrevLogIndex, rf.log.at(args.PrevLogIndex).Term, nextPrevIdx, nextPrevTerm)
 			LOG(rf.me, rf.currentTerm, DDebug, "-> S%d, Leader log=%v", peer, rf.log.String())
 			return
 		}
@@ -209,6 +216,7 @@ func (rf *Raft) startReplication(term int) bool {
 			}
 			LOG(rf.me, rf.currentTerm, DDebug, "-> S%d, SendSnap, Args=%v", peer, args.String())
 			go rf.installOnPeer(peer, term, args)
+			continue
 		}
 
 		prevLogTerm := rf.log.at(prevLogIndex).Term
