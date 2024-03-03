@@ -70,7 +70,7 @@ func (rf *Raft) sendInstallSnapshot(server int, args *InstallSnapshotArgs, reply
 	return ok
 }
 
-func (rf *Raft) installOnPeer(peer, term int, args *InstallSnapshotArgs) {
+func (rf *Raft) installOnPeer(peer int, args *InstallSnapshotArgs) {
 	reply := &InstallSnapshotReply{}
 	ok := rf.sendInstallSnapshot(peer, args, reply)
 

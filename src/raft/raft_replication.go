@@ -215,7 +215,7 @@ func (rf *Raft) startReplication(term int) bool {
 				Snapshot:          rf.log.snapshot,
 			}
 			LOG(rf.me, rf.currentTerm, DDebug, "-> S%d, SendSnap, Args=%v", peer, args.String())
-			go rf.installOnPeer(peer, term, args)
+			go rf.installOnPeer(peer, args)
 			continue
 		}
 
