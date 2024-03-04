@@ -83,6 +83,13 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		return
 	}
 
+	if args.PrevLogIndex < rf.log.snapLastIdx {
+		reply.ConfilictTerm = rf.log.snapLastTerm
+		reply.ConfilictIndex = rf.log.snapLastIdx
+		LOG(rf.me, rf.currentTerm, DLog2, "<- S%d, Reject log, Follower log truncated in %d", args.LeaderId, rf.log.snapLastIdx)
+		return
+	}
+
 	if args.PrevLogTerm != rf.log.at(args.PrevLogIndex).Term {
 		reply.ConfilictTerm = rf.log.at(args.PrevLogIndex).Term
 		reply.ConfilictIndex = rf.log.firstFor(reply.ConfilictTerm)

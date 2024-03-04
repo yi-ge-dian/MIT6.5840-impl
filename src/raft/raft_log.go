@@ -126,6 +126,10 @@ func (rl *RaftLog) String() string {
 // snapshot in the index
 // do check point from the app layer
 func (rl *RaftLog) doSnapshot(index int, snapshot []byte) {
+	if index <= rl.snapLastIdx {
+		return
+	}
+
 	// since idx() will use rl.snapLastIdx, so we should keep it first
 	idx := rl.idx(index)
 

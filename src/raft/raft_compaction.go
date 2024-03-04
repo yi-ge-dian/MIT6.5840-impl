@@ -11,6 +11,15 @@ func (rf *Raft) Snapshot(index int, snapshot []byte) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
 
+	if index > rf.commitIndex {
+		LOG(rf.me, rf.currentTerm, DSnap, "Couldn't snapshot before CommitIdx: %d>%d", index, rf.commitIndex)
+		return
+	}
+	if index <= rf.log.snapLastIdx {
+		LOG(rf.me, rf.currentTerm, DSnap, "Already snapshot in %d<=%d", index, rf.log.snapLastIdx)
+		return
+	}
+
 	rf.log.doSnapshot(index, snapshot)
 	rf.persistLocked()
 }
