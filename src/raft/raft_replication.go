@@ -237,7 +237,7 @@ func (rf *Raft) startReplication(term int) bool {
 			LeaderId:     rf.me,
 			PrevLogIndex: prevLogIndex,
 			PrevLogTerm:  prevLogTerm,
-			Entries:      rf.log.tail(prevLogIndex + 1),
+			Entries:      append([]LogEntry(nil), rf.log.tail(prevLogIndex+1)...),
 			LeaderCommit: rf.commitIndex,
 		}
 
