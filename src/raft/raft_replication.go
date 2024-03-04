@@ -107,6 +107,11 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	if args.LeaderCommit > rf.commitIndex {
 		LOG(rf.me, rf.currentTerm, DApply, "Follower update the commit index %d->%d", rf.commitIndex, args.LeaderCommit)
 		rf.commitIndex = args.LeaderCommit
+
+		if rf.log.size()-1 < rf.commitIndex {
+			rf.commitIndex = rf.log.size() - 1
+		}
+
 		rf.applyCond.Signal()
 	}
 
