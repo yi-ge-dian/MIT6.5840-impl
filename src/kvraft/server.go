@@ -1,6 +1,7 @@
 package kvraft
 
 import (
+	"bytes"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -154,6 +155,9 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	kv.notifyChans = make(map[int]chan *OpReply)
 	kv.duplicateTable = make(map[int64]LastOperationInfo)
 
+	// restore from snapshot
+	kv.restoreFromSnapshot(persister.ReadSnapshot())
+
 	go kv.applyTask()
 
 	return kv
@@ -190,12 +194,24 @@ func (kv *KVServer) applyTask() {
 						}
 					}
 				}
+
 				// send the result to the server
 				if _, isLeader := kv.rf.GetState(); isLeader {
 					notifyChan := kv.getNotifyChan(msg.CommandIndex)
 					notifyChan <- opReply
 				}
 
+				// check if the raft state machine needs to be snapshot
+				if kv.maxraftstate != -1 && kv.rf.GetRaftStateSize() >= kv.maxraftstate {
+					kv.makeSnapshot(msg.CommandIndex)
+				}
+
+				kv.mu.Unlock()
+			} else if msg.SnapshotValid {
+				// apply the snapshot to the state machine
+				kv.mu.Lock()
+				kv.restoreFromSnapshot(msg.Snapshot)
+				kv.lastApplied = msg.SnapshotIndex
 				kv.mu.Unlock()
 			}
 		}
@@ -227,4 +243,29 @@ func (kv *KVServer) getNotifyChan(index int) chan *OpReply {
 
 func (kv *KVServer) removeNotifyChan(index int) {
 	delete(kv.notifyChans, index)
+}
+
+func (kv *KVServer) makeSnapshot(index int) {
+	buf := new(bytes.Buffer)
+	enc := labgob.NewEncoder(buf)
+	enc.Encode(kv.stateMachine)
+	enc.Encode(kv.duplicateTable)
+	kv.rf.Snapshot(index, buf.Bytes())
+}
+
+func (kv *KVServer) restoreFromSnapshot(snapshot []byte) {
+	if len(snapshot) == 0 {
+		return
+	}
+
+	buf := bytes.NewBuffer(snapshot)
+	dec := labgob.NewDecoder(buf)
+	var stateMachine MemoryKVStateMachine
+	var dupTable map[int64]LastOperationInfo
+	if dec.Decode(&stateMachine) != nil || dec.Decode(&dupTable) != nil {
+		panic("failed to restore state from snapshpt")
+	}
+
+	kv.stateMachine = &stateMachine
+	kv.duplicateTable = dupTable
 }
