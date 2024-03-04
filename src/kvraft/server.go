@@ -20,9 +20,10 @@ type KVServer struct {
 	maxraftstate int // snapshot if log grows this big
 
 	// Your definitions here.
-	lastApplied  int
-	stateMachine *MemoryKVStateMachine
-	notifyChans  map[int]chan *OpReply
+	lastApplied    int
+	stateMachine   *MemoryKVStateMachine
+	notifyChans    map[int]chan *OpReply
+	duplicateTable map[int64]LastOperationInfo
 }
 
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
@@ -45,20 +46,37 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	case <-time.After(ClientRequestTimeout):
 		reply.Err = ErrTimeout
 	}
+
 	go func() {
 		kv.mu.Lock()
 		kv.removeNotifyChan(index)
 		kv.mu.Unlock()
 	}()
+}
 
+func (kv *KVServer) isDuplicateRequest(clientId int64, seqId int64) bool {
+	lastOpInfo, ok := kv.duplicateTable[clientId]
+	return ok && seqId <= lastOpInfo.SeqId
 }
 
 func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// Your code here.
+	// check if the request is repeated
+	kv.mu.Lock()
+	if kv.isDuplicateRequest(args.ClientId, args.SeqId) {
+		OpReply := kv.duplicateTable[args.ClientId].Reply
+		reply.Err = OpReply.Err
+		kv.mu.Unlock()
+		return
+	}
+	kv.mu.Unlock()
+
 	index, _, isLeader := kv.rf.Start(Op{
-		Key:    args.Key,
-		Value:  args.Value,
-		OpType: getOperationType(args.Op),
+		Key:      args.Key,
+		Value:    args.Value,
+		OpType:   getOperationType(args.Op),
+		ClientId: args.ClientId,
+		SeqId:    args.SeqId,
 	})
 
 	if !isLeader {
@@ -133,6 +151,9 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	kv.dead = 0
 	kv.lastApplied = 0
 	kv.stateMachine = NewMemoryKVStateMachine()
+	kv.notifyChans = make(map[int]chan *OpReply)
+	kv.duplicateTable = make(map[int64]LastOperationInfo)
+
 	go kv.applyTask()
 
 	return kv
@@ -144,7 +165,7 @@ func (kv *KVServer) applyTask() {
 	for !kv.killed() {
 		select {
 		case msg := <-kv.applyCh:
-			if !msg.CommandValid {
+			if msg.CommandValid {
 				kv.mu.Lock()
 				// if message is been proposed by the current server, ignore
 				if msg.CommandIndex <= kv.lastApplied {
@@ -156,8 +177,19 @@ func (kv *KVServer) applyTask() {
 
 				// apply the command to the state machine
 				op := msg.Command.(Op)
-				opReply := kv.applyTaskToStateMachine(op)
+				var opReply *OpReply
 
+				if op.OpType != OpGet && kv.isDuplicateRequest(op.ClientId, op.SeqId) {
+					opReply = kv.duplicateTable[op.ClientId].Reply
+				} else {
+					opReply = kv.applyTaskToStateMachine(op)
+					if op.OpType != OpGet {
+						kv.duplicateTable[op.ClientId] = LastOperationInfo{
+							SeqId: op.SeqId,
+							Reply: opReply,
+						}
+					}
+				}
 				// send the result to the server
 				if _, isLeader := kv.rf.GetState(); isLeader {
 					notifyChan := kv.getNotifyChan(msg.CommandIndex)

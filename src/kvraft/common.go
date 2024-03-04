@@ -12,15 +12,15 @@ const (
 	ErrTimeout     = "ErrTimeout"
 )
 
-const ClientRequestTimeout = 500 * time.Microsecond
-
 type Err string
 
 // Put or Append
 type PutAppendArgs struct {
-	Key   string
-	Value string
-	Op    string // "Put" or "Append"
+	Key      string
+	Value    string
+	Op       string // "Put" or "Append"
+	ClientId int64
+	SeqId    int64
 	// You'll have to add definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
@@ -40,6 +40,8 @@ type GetReply struct {
 	Value string
 }
 
+const ClientRequestTimeout = 500 * time.Millisecond
+
 const Debug = false
 
 func DPrintf(format string, a ...interface{}) (n int, err error) {
@@ -53,9 +55,11 @@ type Op struct {
 	// Your definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
-	Key    string
-	Value  string
-	OpType OperationType
+	Key      string
+	Value    string
+	OpType   OperationType
+	ClientId int64
+	SeqId    int64
 }
 
 type OpReply struct {
@@ -73,8 +77,6 @@ const (
 
 func getOperationType(op string) OperationType {
 	switch op {
-	case "Get":
-		return OpGet
 	case "Put":
 		return OpPut
 	case "Append":
@@ -82,4 +84,9 @@ func getOperationType(op string) OperationType {
 	default:
 		panic("unknown operation type")
 	}
+}
+
+type LastOperationInfo struct {
+	SeqId int64
+	Reply *OpReply
 }

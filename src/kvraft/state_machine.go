@@ -24,10 +24,6 @@ func (mkv *MemoryKVStateMachine) Put(key string, value string) Err {
 }
 
 func (mkv *MemoryKVStateMachine) Append(key string, value string) Err {
-	if oldValue, ok := mkv.KV[key]; ok {
-		mkv.KV[key] = oldValue + value
-	} else {
-		mkv.KV[key] = value
-	}
+	mkv.KV[key] += value
 	return OK
 }

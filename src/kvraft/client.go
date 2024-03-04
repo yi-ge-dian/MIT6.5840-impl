@@ -12,6 +12,9 @@ type Clerk struct {
 	servers []*labrpc.ClientEnd
 	// the leader's id, so you won't have to ask the all servers next time
 	leaderId int
+	// the client id + the sequence number of the request
+	clientId int64
+	seqId    int64
 }
 
 func nrand() int64 {
@@ -25,6 +28,9 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 	ck := new(Clerk)
 	ck.servers = servers
 	// You'll have to add code here.
+	ck.leaderId = 0
+	ck.clientId = nrand()
+	ck.seqId = 0
 	return ck
 }
 
@@ -41,9 +47,9 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 func (ck *Clerk) Get(key string) string {
 	// You will have to modify this function.
 	args := GetArgs{Key: key}
-	var reply GetReply
 
 	for {
+		var reply GetReply
 		// send an RPC to the server.
 		ok := ck.servers[ck.leaderId].Call("KVServer.Get", &args, &reply)
 		if !ok || reply.Err == ErrWrongLeader || reply.Err == ErrTimeout {
@@ -66,9 +72,11 @@ func (ck *Clerk) Get(key string) string {
 func (ck *Clerk) PutAppend(key string, value string, op string) {
 	// You will have to modify this function.
 	args := PutAppendArgs{
-		Key:   key,
-		Value: value,
-		Op:    op,
+		Key:      key,
+		Value:    value,
+		Op:       op,
+		ClientId: ck.clientId,
+		SeqId:    ck.seqId,
 	}
 
 	for {
@@ -79,6 +87,7 @@ func (ck *Clerk) PutAppend(key string, value string, op string) {
 			ck.leaderId = (ck.leaderId + 1) % len(ck.servers)
 			continue
 		}
+		ck.seqId++
 		return
 	}
 }
