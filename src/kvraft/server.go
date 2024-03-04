@@ -1,29 +1,14 @@
 package kvraft
 
 import (
+	"sync"
+	"sync/atomic"
+	"time"
+
 	"6.5840/labgob"
 	"6.5840/labrpc"
 	"6.5840/raft"
-	"log"
-	"sync"
-	"sync/atomic"
 )
-
-const Debug = false
-
-func DPrintf(format string, a ...interface{}) (n int, err error) {
-	if Debug {
-		log.Printf(format, a...)
-	}
-	return
-}
-
-
-type Op struct {
-	// Your definitions here.
-	// Field names must start with capital letters,
-	// otherwise RPC will break.
-}
 
 type KVServer struct {
 	mu      sync.Mutex
@@ -35,15 +20,68 @@ type KVServer struct {
 	maxraftstate int // snapshot if log grows this big
 
 	// Your definitions here.
+	lastApplied  int
+	stateMachine *MemoryKVStateMachine
+	notifyChans  map[int]chan *OpReply
 }
-
 
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	// Your code here.
+	index, _, isLeader := kv.rf.Start(Op{Key: args.Key, OpType: OpGet})
+
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		return
+	}
+
+	kv.mu.Lock()
+	notifyChan := kv.getNotifyChan(index)
+	kv.mu.Unlock()
+
+	select {
+	case res := <-notifyChan:
+		reply.Err = res.Err
+		reply.Value = res.Value
+	case <-time.After(ClientRequestTimeout):
+		reply.Err = ErrTimeout
+	}
+	go func() {
+		kv.mu.Lock()
+		kv.removeNotifyChan(index)
+		kv.mu.Unlock()
+	}()
+
 }
 
 func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// Your code here.
+	index, _, isLeader := kv.rf.Start(Op{
+		Key:    args.Key,
+		Value:  args.Value,
+		OpType: getOperationType(args.Op),
+	})
+
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		return
+	}
+
+	kv.mu.Lock()
+	notifyChan := kv.getNotifyChan(index)
+	kv.mu.Unlock()
+
+	select {
+	case res := <-notifyChan:
+		reply.Err = res.Err
+	case <-time.After(ClientRequestTimeout):
+		reply.Err = ErrTimeout
+	}
+
+	go func() {
+		kv.mu.Lock()
+		kv.removeNotifyChan(index)
+		kv.mu.Unlock()
+	}()
 }
 
 // the tester calls Kill() when a KVServer instance won't
@@ -71,7 +109,7 @@ func (kv *KVServer) killed() bool {
 // me is the index of the current server in servers[].
 // the k/v server should store snapshots through the underlying Raft
 // implementation, which should call persister.SaveStateAndSnapshot() to
-// atomically save the Raft state along with the snapshot.
+// atomically save the Raft state along with the snapshot.，
 // the k/v server should snapshot when Raft's saved state exceeds maxraftstate bytes,
 // in order to allow Raft to garbage-collect its log. if maxraftstate is -1,
 // you don't need to snapshot.
@@ -92,6 +130,69 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
 
 	// You may need initialization code here.
+	kv.dead = 0
+	kv.lastApplied = 0
+	kv.stateMachine = NewMemoryKVStateMachine()
+	go kv.applyTask()
 
 	return kv
+}
+
+// applyTask
+// a goroutine that applies the log entries from the raft channel to the state machine
+func (kv *KVServer) applyTask() {
+	for !kv.killed() {
+		select {
+		case msg := <-kv.applyCh:
+			if !msg.CommandValid {
+				kv.mu.Lock()
+				// if message is been proposed by the current server, ignore
+				if msg.CommandIndex <= kv.lastApplied {
+					kv.mu.Unlock()
+					continue
+				}
+				// update the lastApplied index
+				kv.lastApplied = msg.CommandIndex
+
+				// apply the command to the state machine
+				op := msg.Command.(Op)
+				opReply := kv.applyTaskToStateMachine(op)
+
+				// send the result to the server
+				if _, isLeader := kv.rf.GetState(); isLeader {
+					notifyChan := kv.getNotifyChan(msg.CommandIndex)
+					notifyChan <- opReply
+				}
+
+				kv.mu.Unlock()
+			}
+		}
+	}
+}
+
+func (kv *KVServer) applyTaskToStateMachine(op Op) *OpReply {
+	var value string
+	var err Err
+	switch op.OpType {
+	case OpGet:
+		value, err = kv.stateMachine.Get(op.Key)
+	case OpPut:
+		err = kv.stateMachine.Put(op.Key, op.Value)
+	case OpAppend:
+		err = kv.stateMachine.Append(op.Key, op.Value)
+	default:
+		panic("unknown operation type")
+	}
+	return &OpReply{Value: value, Err: err}
+}
+
+func (kv *KVServer) getNotifyChan(index int) chan *OpReply {
+	if _, ok := kv.notifyChans[index]; !ok {
+		kv.notifyChans[index] = make(chan *OpReply, 1)
+	}
+	return kv.notifyChans[index]
+}
+
+func (kv *KVServer) removeNotifyChan(index int) {
+	delete(kv.notifyChans, index)
 }

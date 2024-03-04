@@ -1,0 +1,33 @@
+package kvraft
+
+type MemoryKVStateMachine struct {
+	KV map[string]string
+}
+
+func NewMemoryKVStateMachine() *MemoryKVStateMachine {
+	return &MemoryKVStateMachine{
+		KV: make(map[string]string),
+	}
+}
+
+func (mkv *MemoryKVStateMachine) Get(key string) (string, Err) {
+	if value, ok := mkv.KV[key]; ok {
+		return value, OK
+	}
+
+	return "", ErrNoKey
+}
+
+func (mkv *MemoryKVStateMachine) Put(key string, value string) Err {
+	mkv.KV[key] = value
+	return OK
+}
+
+func (mkv *MemoryKVStateMachine) Append(key string, value string) Err {
+	if oldValue, ok := mkv.KV[key]; ok {
+		mkv.KV[key] = oldValue + value
+	} else {
+		mkv.KV[key] = value
+	}
+	return OK
+}
