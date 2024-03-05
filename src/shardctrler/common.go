@@ -1,5 +1,10 @@
 package shardctrler
 
+import (
+	"log"
+	"time"
+)
+
 //
 // Shard controller: assigns shards to replication groups.
 //
@@ -79,4 +84,63 @@ type QueryReply struct {
 	WrongLeader bool
 	Err         Err
 	Config      Config
+}
+
+const ClientRequestTimeout = 500 * time.Millisecond
+
+const Debug = false
+
+func DPrintf(format string, a ...interface{}) (n int, err error) {
+	if Debug {
+		log.Printf(format, a...)
+	}
+	return
+}
+
+type Op struct {
+	// Your definitions here.
+	// Field names must start with capital letters,
+	// otherwise RPC will break.
+	Servers  map[int][]string // for join, new GID -> servers mappings
+	GIDs     []int            // for leave
+	Shard    int              // for move
+	GID      int              // for move
+	Num      int              // for query, desired config number
+	OpType   OperationType
+	ClientId int64
+	SeqId    int64
+}
+
+type OpReply struct {
+	ControllerConfig Config
+	Err              Err
+}
+
+type OperationType uint8
+
+const (
+	OpJoin OperationType = iota
+	OpLeave
+	OpMove
+	OpQuery
+)
+
+func getOperationType(op string) OperationType {
+	switch op {
+	case "Join":
+		return OpJoin
+	case "Leave":
+		return OpLeave
+	case "Move":
+		return OpMove
+	case "Query":
+		return OpQuery
+	default:
+		panic("Unknown operation type")
+	}
+}
+
+type LastOperationInfo struct {
+	SeqId int64
+	Reply *OpReply
 }

@@ -72,6 +72,7 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	}
 	kv.mu.Unlock()
 
+	// place the operation to the raft layer
 	index, _, isLeader := kv.rf.Start(Op{
 		Key:      args.Key,
 		Value:    args.Value,
