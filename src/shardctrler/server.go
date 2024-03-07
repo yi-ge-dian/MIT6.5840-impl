@@ -18,7 +18,6 @@ type ShardCtrler struct {
 	dead    int32 // set by Kill()
 
 	// Your data here.
-
 	configs        []Config // indexed by config num
 	lastApplied    int
 	stateMachine   *CtrlerStateMachine
