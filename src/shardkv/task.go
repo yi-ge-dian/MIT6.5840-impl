@@ -1,6 +1,8 @@
 package shardkv
 
-import "time"
+import (
+	"time"
+)
 
 // applyTask
 func (kv *ShardKV) applyTask() {
@@ -18,19 +20,25 @@ func (kv *ShardKV) applyTask() {
 				kv.lastApplied = msg.CommandIndex
 
 				// apply the command to the state machine
-				op := msg.Command.(Op)
 				var opReply *OpReply
+				raftCommand := msg.Command.(RaftCommand)
 
-				if op.OpType != OpGet && kv.isDuplicateRequest(op.ClientId, op.SeqId) {
-					opReply = kv.duplicateTable[op.ClientId].Reply
-				} else {
-					opReply = kv.applyTaskToStateMachine(op)
-					if op.OpType != OpGet {
-						kv.duplicateTable[op.ClientId] = LastOperationInfo{
-							SeqId: op.SeqId,
-							Reply: opReply,
+				if raftCommand.CmdType == ClientOperation { // check if the command is a client operation
+					op := raftCommand.Data.(Op)
+					if op.OpType != OpGet && kv.isDuplicateRequest(op.ClientId, op.SeqId) {
+						opReply = kv.duplicateTable[op.ClientId].Reply
+					} else {
+						shardId := key2shard(op.Key)
+						opReply = kv.applyTaskToStateMachine(op, shardId)
+						if op.OpType != OpGet {
+							kv.duplicateTable[op.ClientId] = LastOperationInfo{
+								SeqId: op.SeqId,
+								Reply: opReply,
+							}
 						}
 					}
+				} else { // check if the command is a configuration change
+					opReply = kv.handleConfigChangeMessage(raftCommand)
 				}
 
 				// send the result to the server
@@ -60,10 +68,17 @@ func (kv *ShardKV) applyTask() {
 // fetch the latest configuration from the shard controller
 func (kv *ShardKV) fetchConfigTask() {
 	for !kv.killed() {
+		// fetch the latest configuration
 		kv.mu.Lock()
-		newConfig := kv.mck.Query(-1)
-		kv.currentConfig = newConfig
+		newConfig := kv.mck.Query(kv.currentConfig.Num + 1)
 		kv.mu.Unlock()
+
+		// send it to the raft layer
+		kv.ConfigCommand(RaftCommand{CmdType: ConfigChange, Data: newConfig}, &OpReply{})
+
+		// update the current configuration
+		kv.currentConfig = newConfig
+
 		time.Sleep(FetchConfigInterval)
 	}
 }

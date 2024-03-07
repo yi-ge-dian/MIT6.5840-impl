@@ -23,9 +23,11 @@ type ShardKV struct {
 	maxraftstate int // snapshot if log grows this big
 
 	// Your definitions here.
-	dead           int32 // set by Kill()
-	lastApplied    int
-	stateMachine   *MemoryKVStateMachine
+	dead        int32 // set by Kill()
+	lastApplied int
+
+	// shardId -> state machine
+	stateMachines  map[int]*MemoryKVStateMachine
 	notifyChans    map[int]chan *OpReply
 	duplicateTable map[int64]LastOperationInfo
 	currentConfig  shardctrler.Config
@@ -47,7 +49,10 @@ func (kv *ShardKV) Get(args *GetArgs, reply *GetReply) {
 	}
 	kv.mu.Unlock()
 
-	index, _, isLeader := kv.rf.Start(Op{Key: args.Key, OpType: OpGet})
+	index, _, isLeader := kv.rf.Start(RaftCommand{
+		CmdType: ClientOperation,
+		Data:    Op{Key: args.Key, OpType: OpGet},
+	})
 
 	if !isLeader {
 		reply.Err = ErrWrongLeader
@@ -99,12 +104,15 @@ func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	kv.mu.Unlock()
 
 	// place the operation to the raft layer
-	index, _, isLeader := kv.rf.Start(Op{
-		Key:      args.Key,
-		Value:    args.Value,
-		OpType:   getOperationType(args.Op),
-		ClientId: args.ClientId,
-		SeqId:    args.SeqId,
+	index, _, isLeader := kv.rf.Start(RaftCommand{
+		CmdType: ClientOperation,
+		Data: Op{
+			Key:      args.Key,
+			Value:    args.Value,
+			OpType:   getOperationType(args.Op),
+			ClientId: args.ClientId,
+			SeqId:    args.SeqId,
+		},
 	})
 
 	if !isLeader {
@@ -192,7 +200,7 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 
 	kv.dead = 0
 	kv.lastApplied = 0
-	kv.stateMachine = NewMemoryKVStateMachine()
+	kv.stateMachines = make(map[int]*MemoryKVStateMachine)
 	kv.notifyChans = make(map[int]chan *OpReply)
 	kv.duplicateTable = make(map[int64]LastOperationInfo)
 	kv.currentConfig = shardctrler.DefaultConfig()
@@ -205,16 +213,16 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 	return kv
 }
 
-func (kv *ShardKV) applyTaskToStateMachine(op Op) *OpReply {
+func (kv *ShardKV) applyTaskToStateMachine(op Op, shardId int) *OpReply {
 	var value string
 	var err Err
 	switch op.OpType {
 	case OpGet:
-		value, err = kv.stateMachine.Get(op.Key)
+		value, err = kv.stateMachines[shardId].Get(op.Key)
 	case OpPut:
-		err = kv.stateMachine.Put(op.Key, op.Value)
+		err = kv.stateMachines[shardId].Put(op.Key, op.Value)
 	case OpAppend:
-		err = kv.stateMachine.Append(op.Key, op.Value)
+		err = kv.stateMachines[shardId].Append(op.Key, op.Value)
 	default:
 		panic("unknown operation type")
 	}
@@ -235,7 +243,7 @@ func (kv *ShardKV) removeNotifyChan(index int) {
 func (kv *ShardKV) makeSnapshot(index int) {
 	buf := new(bytes.Buffer)
 	enc := labgob.NewEncoder(buf)
-	enc.Encode(kv.stateMachine)
+	enc.Encode(kv.stateMachines)
 	enc.Encode(kv.duplicateTable)
 	kv.rf.Snapshot(index, buf.Bytes())
 }
@@ -247,12 +255,12 @@ func (kv *ShardKV) restoreFromSnapshot(snapshot []byte) {
 
 	buf := bytes.NewBuffer(snapshot)
 	dec := labgob.NewDecoder(buf)
-	var stateMachine MemoryKVStateMachine
+	var stateMachines map[int]*MemoryKVStateMachine
 	var dupTable map[int64]LastOperationInfo
-	if dec.Decode(&stateMachine) != nil || dec.Decode(&dupTable) != nil {
+	if dec.Decode(&stateMachines) != nil || dec.Decode(&dupTable) != nil {
 		panic("failed to restore state from snapshpt")
 	}
 
-	kv.stateMachine = &stateMachine
+	kv.stateMachines = stateMachines
 	kv.duplicateTable = dupTable
 }
