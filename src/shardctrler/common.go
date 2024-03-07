@@ -33,6 +33,14 @@ type Config struct {
 	Groups map[int][]string // gid -> servers[]
 }
 
+func DefaultConfig() Config {
+	return Config{
+		Num:    0,
+		Shards: [NShards]int{},
+		Groups: make(map[int][]string),
+	}
+}
+
 const (
 	OK             = "OK"
 	ErrNoKey       = "ErrNoKey"

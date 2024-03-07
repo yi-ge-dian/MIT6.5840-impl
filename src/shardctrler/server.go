@@ -21,7 +21,7 @@ type ShardCtrler struct {
 
 	configs        []Config // indexed by config num
 	lastApplied    int
-	stateMachine   *MemoryKVStateMachine
+	stateMachine   *CtrlerStateMachine
 	notifyChans    map[int]chan *OpReply
 	duplicateTable map[int64]LastOperationInfo
 }
@@ -33,51 +33,51 @@ func (sc *ShardCtrler) isDuplicateRequest(clientId int64, seqId int64) bool {
 
 func (sc *ShardCtrler) Join(args *JoinArgs, reply *JoinReply) {
 	// Your code here.
-	var opReply *OpReply
+	var opReply OpReply
 	sc.command(&Op{
 		OpType:   OpJoin,
 		ClientId: args.ClientId,
 		SeqId:    args.SeqId,
 		Servers:  args.Servers,
-	}, opReply)
+	}, &opReply)
 
 	reply.Err = opReply.Err
 }
 
 func (sc *ShardCtrler) Leave(args *LeaveArgs, reply *LeaveReply) {
 	// Your code here.
-	var opReply *OpReply
+	var opReply OpReply
 	sc.command(&Op{
 		OpType:   OpLeave,
 		ClientId: args.ClientId,
 		SeqId:    args.SeqId,
 		GIDs:     args.GIDs,
-	}, opReply)
+	}, &opReply)
 
 	reply.Err = opReply.Err
 }
 
 func (sc *ShardCtrler) Move(args *MoveArgs, reply *MoveReply) {
 	// Your code here.
-	var opReply *OpReply
+	var opReply OpReply
 	sc.command(&Op{
 		OpType:   OpMove,
 		ClientId: args.ClientId,
 		SeqId:    args.SeqId,
 		Shard:    args.Shard,
 		GID:      args.GID,
-	}, opReply)
+	}, &opReply)
 
 	reply.Err = opReply.Err
 }
 
 func (sc *ShardCtrler) Query(args *QueryArgs, reply *QueryReply) {
 	// Your code here.
-	var opReply *OpReply
+	var opReply OpReply
 	sc.command(&Op{
 		OpType: OpQuery,
 		Num:    args.Num,
-	}, opReply)
+	}, &opReply)
 
 	reply.Config = opReply.ControllerConfig
 	reply.Err = opReply.Err
@@ -157,7 +157,7 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister)
 	// Your code here.
 	sc.dead = 0
 	sc.lastApplied = 0
-	sc.stateMachine = nil // todo
+	sc.stateMachine = NewCtrlerStateMachine()
 	sc.notifyChans = make(map[int]chan *OpReply)
 	sc.duplicateTable = make(map[int64]LastOperationInfo)
 
@@ -208,19 +208,25 @@ func (sc *ShardCtrler) applyTask() {
 }
 
 func (sc *ShardCtrler) applyTaskToStateMachine(op Op) *OpReply {
-	// var value string
-	// var err Err
-	// switch op.OpType {
-	// case OpGet:
-	// 	value, err = kv.stateMachine.Get(op.Key)
-	// case OpPut:
-	// 	err = kv.stateMachine.Put(op.Key, op.Value)
-	// case OpAppend:
-	// 	err = kv.stateMachine.Append(op.Key, op.Value)
-	// default:
-	// 	panic("unknown operation type")
-	// }
-	return nil
+	var err Err
+	var config Config
+
+	switch op.OpType {
+	case OpQuery:
+		config, err = sc.stateMachine.Query(op.Num)
+	case OpJoin:
+		err = sc.stateMachine.Join(op.Servers)
+	case OpLeave:
+		err = sc.stateMachine.Leave(op.GIDs)
+	case OpMove:
+		err = sc.stateMachine.Move(op.Shard, op.GID)
+	default:
+		panic("Unknown operation type")
+	}
+	return &OpReply{
+		ControllerConfig: config,
+		Err:              err,
+	}
 }
 
 func (sc *ShardCtrler) getNotifyChan(index int) chan *OpReply {
