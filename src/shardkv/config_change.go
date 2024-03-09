@@ -39,6 +39,12 @@ func (kv *ShardKV) handleConfigChangeMessage(command RaftCommand) *OpReply {
 	case ConfigChange:
 		newConfig := command.Data.(shardctrler.Config)
 		return kv.applyNewConfig(newConfig)
+	case ShardMigration:
+		shardData := command.Data.(ShardOperationReply)
+		return kv.applyShardMigration(&shardData)
+	case ShardGC:
+		shardData := command.Data.(ShardOperationArgs)
+		return kv.applyShardGC(shardData)
 	default:
 		panic("unknown command type")
 	}
@@ -48,21 +54,70 @@ func (kv *ShardKV) applyNewConfig(newConfig shardctrler.Config) *OpReply {
 	// check if the new config is the same as the current config
 	if newConfig.Num == kv.currentConfig.Num+1 {
 		for i := 0; i < shardctrler.NShards; i++ {
-			// todo check if the shard is not in the current config, but in the new config
-			// we need to let the shard in, 
+			// check if the shard is not in the current config, but in the new config
+			// we need to let the shard in
 			if kv.currentConfig.Shards[i] != kv.gid && newConfig.Shards[i] == kv.gid {
-
+				currentGid := kv.currentConfig.Shards[i]
+				if currentGid != 0 {
+					kv.shards[i].Status = MoveIn
+				}
 			}
 
 			// todo check if the shard is in the current config, but is not in new config.
-			// we need to let the shard out, todo
+			// we need to let the shard out
 			if kv.currentConfig.Shards[i] == kv.gid && newConfig.Shards[i] != kv.gid {
-
+				gid := newConfig.Shards[i]
+				if gid != 0 {
+					kv.shards[i].Status = MoveOut
+				}
 			}
 		}
 
 		kv.currentConfig = newConfig
 		return &OpReply{Err: OK}
+	}
+
+	return &OpReply{Err: ErrWrongConfig}
+}
+
+func (kv *ShardKV) applyShardMigration(shardDataReply *ShardOperationReply) *OpReply {
+	if shardDataReply.ConfigNum == kv.currentConfig.Num {
+		for shardId, shardData := range shardDataReply.ShardData {
+			shard := kv.shards[shardId]
+			if shard.Status == MoveIn {
+				for k, v := range shardData {
+					shard.KV[k] = v
+				}
+				// status change to gc
+				shard.Status = GC
+			} else {
+				break
+			}
+		}
+		// copy the duplicate table
+		for clientId, dupTable := range shardDataReply.DuplicateTable {
+			table, ok := kv.duplicateTable[clientId]
+			if !ok || dupTable.SeqId > table.SeqId {
+				kv.duplicateTable[clientId] = dupTable
+			}
+		}
+
+	}
+	return &OpReply{Err: ErrWrongConfig}
+}
+
+func (kv *ShardKV) applyShardGC(shardsInfo ShardOperationArgs) *OpReply {
+	if shardsInfo.ConfigNum == kv.currentConfig.Num {
+		for _, shardId := range shardsInfo.ShardIds {
+			shard := kv.shards[shardId]
+			if shard.Status == GC {
+				shard.Status = Normal
+			} else if shard.Status == MoveOut {
+				kv.shards[shardId] = NewMemoryKVStateMachine()
+			} else {
+				break
+			}
+		}
 	}
 
 	return &OpReply{Err: ErrWrongConfig}
