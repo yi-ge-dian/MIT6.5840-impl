@@ -26,18 +26,7 @@ func (kv *ShardKV) applyTask() {
 
 				if raftCommand.CmdType == ClientOperation { // check if the command is a client operation
 					op := raftCommand.Data.(Op)
-					if op.OpType != OpGet && kv.isDuplicateRequest(op.ClientId, op.SeqId) {
-						opReply = kv.duplicateTable[op.ClientId].Reply
-					} else {
-						shardId := key2shard(op.Key)
-						opReply = kv.applyTaskToStateMachine(op, shardId)
-						if op.OpType != OpGet {
-							kv.duplicateTable[op.ClientId] = LastOperationInfo{
-								SeqId: op.SeqId,
-								Reply: opReply,
-							}
-						}
-					}
+					opReply = kv.applyClientOperation(op)
 				} else { // check if the command is a configuration change
 					opReply = kv.handleConfigChangeMessage(raftCommand)
 				}
@@ -70,17 +59,27 @@ func (kv *ShardKV) applyTask() {
 func (kv *ShardKV) fetchConfigTask() {
 	for !kv.killed() {
 		if _, isLeader := kv.rf.GetState(); isLeader {
-			// fetch the latest configuration
+			needFetch := true
 			kv.mu.Lock()
-			newConfig := kv.mck.Query(kv.currentConfig.Num + 1)
+			// if the status of a shard is non-normal, it means that a configuration change is in progress
+			// and there is no need to obtain the configuration again, once process one
+			for _, shard := range kv.shards {
+				if shard.Status != Normal {
+					needFetch = false
+					break
+				}
+			}
+			currentNum := kv.currentConfig.Num
 			kv.mu.Unlock()
 
-			// send it to the raft layer
-			kv.ConfigCommand(RaftCommand{CmdType: ConfigChange, Data: newConfig}, &OpReply{})
-
-			// update the current configuration
-			kv.prevConfig = kv.currentConfig
-			kv.currentConfig = newConfig
+			if needFetch {
+				// fetch the latest configuration
+				newConfig := kv.mck.Query(currentNum + 1)
+				if newConfig.Num == currentNum+1 {
+					// send it to the raft layer
+					kv.ConfigCommand(RaftCommand{CmdType: ConfigChange, Data: newConfig}, &OpReply{})
+				}
+			}
 		}
 
 		time.Sleep(FetchConfigInterval)
@@ -107,8 +106,8 @@ func (kv *ShardKV) shardMigrationTask() {
 					}
 					for _, server := range servers {
 						var reply ShardOperationReply
-						client := kv.make_end(server)
-						ok := client.Call("ShardKV.GetShardData", &shardArgs, &reply)
+						clientEnd := kv.make_end(server)
+						ok := clientEnd.Call("ShardKV.GetShardData", &shardArgs, &reply)
 						// get the shard data, do the shard migration
 						if ok && reply.Err == OK {
 							kv.ConfigCommand(RaftCommand{
@@ -146,7 +145,7 @@ func (kv *ShardKV) shardGCTask() {
 					for _, server := range servers {
 						var reply ShardOperationReply
 						clientEnd := kv.make_end(server)
-						ok := clientEnd.Call("ShardKV.DeleteShardData", &shardArgs, &reply)
+						ok := clientEnd.Call("ShardKV.DeleteShardsData", &shardArgs, &reply)
 						if ok && reply.Err == OK {
 							kv.ConfigCommand(RaftCommand{
 								CmdType: ShardGC,
@@ -157,6 +156,7 @@ func (kv *ShardKV) shardGCTask() {
 				}(kv.prevConfig.Groups[gid], kv.currentConfig.Num, shardIds)
 			}
 			kv.mu.Unlock()
+			wg.Wait()
 		}
 
 		time.Sleep(ShardGCInterval)
@@ -165,20 +165,22 @@ func (kv *ShardKV) shardGCTask() {
 
 func (kv *ShardKV) getShardByStatus(status ShardStatus) map[int][]int {
 	gidToShards := make(map[int][]int)
-	for shardId, stateMachine := range kv.shards {
-		if stateMachine.Status == status {
-			gid := kv.prevConfig.Shards[shardId]
+	for i, shard := range kv.shards {
+		if shard.Status == status {
+			gid := kv.prevConfig.Shards[i]
 			if gid != 0 {
-				gidToShards[gid] = make([]int, 0)
+				if _, ok := gidToShards[gid]; !ok {
+					gidToShards[gid] = make([]int, 0)
+				}
+				gidToShards[gid] = append(gidToShards[gid], i)
 			}
-			gidToShards[gid] = append(gidToShards[gid], shardId)
 		}
 	}
 	return gidToShards
 }
 
 func (kv *ShardKV) GetShardData(args *ShardOperationArgs, reply *ShardOperationReply) {
-	if _, leader := kv.rf.GetState(); !leader {
+	if _, isLeader := kv.rf.GetState(); !isLeader {
 		reply.Err = ErrWrongLeader
 		return
 	}
@@ -208,21 +210,42 @@ func (kv *ShardKV) GetShardData(args *ShardOperationArgs, reply *ShardOperationR
 	reply.Err = OK
 }
 
-func (kv *ShardKV) DeleteShardData(args *ShardOperationArgs, reply *ShardOperationReply) {
-	if _, leader := kv.rf.GetState(); !leader {
+func (kv *ShardKV) DeleteShardsData(args *ShardOperationArgs, reply *ShardOperationReply) {
+	if _, isLeader := kv.rf.GetState(); !isLeader {
 		reply.Err = ErrWrongLeader
 		return
 	}
 
 	kv.mu.Lock()
-	defer kv.mu.Unlock()
 	if kv.currentConfig.Num > args.ConfigNum {
 		reply.Err = OK
+		kv.mu.Unlock()
 		return
 	}
+	kv.mu.Unlock()
 
-	kv.ConfigCommand(RaftCommand{
-		CmdType: ShardGC,
-		Data:    *args,
-	}, &OpReply{})
+	var opReply OpReply
+	kv.ConfigCommand(RaftCommand{ShardGC, *args}, &opReply)
+
+	reply.Err = opReply.Err
+}
+
+func (kv *ShardKV) applyClientOperation(op Op) *OpReply {
+	if kv.isMatchGroup(op.Key) {
+		var opReply *OpReply
+		if op.OpType != OpGet && kv.isDuplicateRequest(op.ClientId, op.SeqId) {
+			opReply = kv.duplicateTable[op.ClientId].Reply
+		} else {
+			shardId := key2shard(op.Key)
+			opReply = kv.applyTaskToStateMachine(op, shardId)
+			if op.OpType != OpGet {
+				kv.duplicateTable[op.ClientId] = LastOperationInfo{
+					SeqId: op.SeqId,
+					Reply: opReply,
+				}
+			}
+		}
+		return opReply
+	}
+	return &OpReply{Err: ErrWrongGroup}
 }

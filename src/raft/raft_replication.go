@@ -227,7 +227,7 @@ func (rf *Raft) startReplication(term int) bool {
 				Snapshot:          rf.log.snapshot,
 			}
 			LOG(rf.me, rf.currentTerm, DDebug, "-> S%d, SendSnap, Args=%v", peer, args.String())
-			go rf.installOnPeer(peer, args)
+			go rf.installOnPeer(peer, term, args)
 			continue
 		}
 
@@ -237,7 +237,7 @@ func (rf *Raft) startReplication(term int) bool {
 			LeaderId:     rf.me,
 			PrevLogIndex: prevLogIndex,
 			PrevLogTerm:  prevLogTerm,
-			Entries:      append([]LogEntry(nil), rf.log.tail(prevLogIndex+1)...),
+			Entries:      rf.log.tail(prevLogIndex + 1),
 			LeaderCommit: rf.commitIndex,
 		}
 

@@ -44,7 +44,7 @@ func (kv *ShardKV) handleConfigChangeMessage(command RaftCommand) *OpReply {
 		return kv.applyShardMigration(&shardData)
 	case ShardGC:
 		shardData := command.Data.(ShardOperationArgs)
-		return kv.applyShardGC(shardData)
+		return kv.applyShardGC(&shardData)
 	default:
 		panic("unknown command type")
 	}
@@ -63,7 +63,7 @@ func (kv *ShardKV) applyNewConfig(newConfig shardctrler.Config) *OpReply {
 				}
 			}
 
-			// todo check if the shard is in the current config, but is not in new config.
+			// check if the shard is in the current config, but is not in new config.
 			// we need to let the shard out
 			if kv.currentConfig.Shards[i] == kv.gid && newConfig.Shards[i] != kv.gid {
 				gid := newConfig.Shards[i]
@@ -72,7 +72,7 @@ func (kv *ShardKV) applyNewConfig(newConfig shardctrler.Config) *OpReply {
 				}
 			}
 		}
-
+		kv.prevConfig = kv.currentConfig
 		kv.currentConfig = newConfig
 		return &OpReply{Err: OK}
 	}
@@ -106,7 +106,7 @@ func (kv *ShardKV) applyShardMigration(shardDataReply *ShardOperationReply) *OpR
 	return &OpReply{Err: ErrWrongConfig}
 }
 
-func (kv *ShardKV) applyShardGC(shardsInfo ShardOperationArgs) *OpReply {
+func (kv *ShardKV) applyShardGC(shardsInfo *ShardOperationArgs) *OpReply {
 	if shardsInfo.ConfigNum == kv.currentConfig.Num {
 		for _, shardId := range shardsInfo.ShardIds {
 			shard := kv.shards[shardId]
@@ -120,5 +120,5 @@ func (kv *ShardKV) applyShardGC(shardsInfo ShardOperationArgs) *OpReply {
 		}
 	}
 
-	return &OpReply{Err: ErrWrongConfig}
+	return &OpReply{Err: OK}
 }

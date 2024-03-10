@@ -81,5 +81,5 @@ func (rf *Raft) readPersist(data []byte) {
 		rf.commitIndex = rf.log.snapLastIdx
 		rf.lastApplied = rf.log.snapLastIdx
 	}
-	LOG(rf.me, rf.currentTerm, DPersist, "Read from persist %v", rf.persistString())
+	LOG(rf.me, rf.currentTerm, DPersist, "Read from persist: %v", rf.persistString())
 }

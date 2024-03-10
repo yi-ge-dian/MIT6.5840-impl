@@ -37,7 +37,8 @@ type ShardKV struct {
 
 func (kv *ShardKV) isMatchGroup(key string) bool {
 	shardId := key2shard(key)
-	return kv.currentConfig.Shards[shardId] == kv.gid
+	shardStatus := kv.shards[shardId]
+	return kv.currentConfig.Shards[shardId] == kv.gid && (shardStatus.Status == Normal || shardStatus.Status == GC)
 }
 
 func (kv *ShardKV) Get(args *GetArgs, reply *GetReply) {
@@ -92,10 +93,8 @@ func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 		kv.mu.Unlock()
 		return
 	}
-	kv.mu.Unlock()
 
 	// check if the request is repeated
-	kv.mu.Lock()
 	if kv.isDuplicateRequest(args.ClientId, args.SeqId) {
 		OpReply := kv.duplicateTable[args.ClientId].Reply
 		reply.Err = OpReply.Err
@@ -183,6 +182,10 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 	// call labgob.Register on structures you want
 	// Go's RPC library to marshall/unmarshall.
 	labgob.Register(Op{})
+	labgob.Register(RaftCommand{})
+	labgob.Register(shardctrler.Config{})
+	labgob.Register(ShardOperationArgs{})
+	labgob.Register(ShardOperationReply{})
 
 	kv := new(ShardKV)
 	kv.me = me
@@ -249,11 +252,18 @@ func (kv *ShardKV) makeSnapshot(index int) {
 	enc := labgob.NewEncoder(buf)
 	enc.Encode(kv.shards)
 	enc.Encode(kv.duplicateTable)
+	enc.Encode(kv.currentConfig)
+	enc.Encode(kv.prevConfig)
 	kv.rf.Snapshot(index, buf.Bytes())
 }
 
 func (kv *ShardKV) restoreFromSnapshot(snapshot []byte) {
 	if len(snapshot) == 0 {
+		for i := 0; i < shardctrler.NShards; i++ {
+			if _, ok := kv.shards[i]; !ok {
+				kv.shards[i] = NewMemoryKVStateMachine()
+			}
+		}
 		return
 	}
 
@@ -261,10 +271,18 @@ func (kv *ShardKV) restoreFromSnapshot(snapshot []byte) {
 	dec := labgob.NewDecoder(buf)
 	var stateMachines map[int]*MemoryKVStateMachine
 	var dupTable map[int64]LastOperationInfo
-	if dec.Decode(&stateMachines) != nil || dec.Decode(&dupTable) != nil {
+	var currentConfig shardctrler.Config
+	var prevConfig shardctrler.Config
+
+	if dec.Decode(&stateMachines) != nil ||
+		dec.Decode(&dupTable) != nil ||
+		dec.Decode(&currentConfig) != nil ||
+		dec.Decode(&prevConfig) != nil {
 		panic("failed to restore state from snapshpt")
 	}
 
 	kv.shards = stateMachines
 	kv.duplicateTable = dupTable
+	kv.currentConfig = currentConfig
+	kv.prevConfig = prevConfig
 }

@@ -24,9 +24,11 @@ func NewLog(snapLastIdx, snapLastTerm int, snapshot []byte, entries []LogEntry) 
 		snapLastTerm: snapLastTerm,
 		snapshot:     snapshot,
 	}
+
 	rl.tailLog = append(rl.tailLog, LogEntry{
 		Term: snapLastTerm,
 	})
+
 	rl.tailLog = append(rl.tailLog, entries...)
 	return rl
 }
@@ -67,7 +69,7 @@ func (rl *RaftLog) size() int {
 // access the index `rl.snapLastIdx` is allowed, although it's not exist actually.
 func (rl *RaftLog) idx(logicIdx int) int {
 	if logicIdx < rl.snapLastIdx || logicIdx >= rl.size() {
-		panic(fmt.Sprintf("%d is out of [%d, %d]", logicIdx, rl.snapLastIdx+1, rl.size()-1))
+		panic(fmt.Sprintf("%d is out of [%d, %d]", logicIdx, rl.snapLastIdx, rl.size()-1))
 	}
 	return logicIdx - rl.snapLastIdx
 }
@@ -154,8 +156,6 @@ func (rl *RaftLog) installSnapshot(index, term int, snapshot []byte) {
 
 	// make a new log array
 	newLog := make([]LogEntry, 0, 1)
-	newLog = append(newLog, LogEntry{
-		Term: term,
-	})
+	newLog = append(newLog, LogEntry{Term: rl.snapLastTerm})
 	rl.tailLog = newLog
 }

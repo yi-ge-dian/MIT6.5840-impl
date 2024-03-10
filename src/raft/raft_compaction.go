@@ -46,6 +46,8 @@ func (reply *InstallSnapshotReply) String() string {
 	return fmt.Sprintf("T%d", reply.Term)
 }
 
+// InstallSnapshot
+// follower receives a snapshot from the leader
 func (rf *Raft) InstallSnapshot(args *InstallSnapshotArgs, reply *InstallSnapshotReply) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
@@ -54,16 +56,16 @@ func (rf *Raft) InstallSnapshot(args *InstallSnapshotArgs, reply *InstallSnapsho
 	reply.Term = rf.currentTerm
 	// align the term
 	if args.Term < rf.currentTerm {
-		LOG(rf.me, rf.currentTerm, DSnap, "<- S%d, Reject Snap, Higher Term, T%d>T%d", args.LeaderId, rf.currentTerm, args.Term)
+		LOG(rf.me, rf.currentTerm, DSnap, "<- S%d, Reject Snap, Higher Term: T%d>T%d", args.LeaderId, rf.currentTerm, args.Term)
 		return
 	}
-	if args.Term > rf.currentTerm {
+	if args.Term >= rf.currentTerm { // handle the case when the peer is candidate
 		rf.becomeFollowerLocked(args.Term)
 	}
 
 	// check if it is a RPC which is out of order
 	if rf.log.snapLastIdx >= args.LastIncludedIndex {
-		LOG(rf.me, rf.currentTerm, DSnap, "<- S%d, Reject Snap, Already installed, Last: %d>=%d", args.LeaderId, rf.log.snapLastIdx, args.LastIncludedIndex)
+		LOG(rf.me, rf.currentTerm, DSnap, "<- S%d, Reject Snap, Already installed: %d>%d", args.LeaderId, rf.log.snapLastIdx, args.LastIncludedIndex)
 		return
 	}
 
@@ -74,12 +76,14 @@ func (rf *Raft) InstallSnapshot(args *InstallSnapshotArgs, reply *InstallSnapsho
 	rf.applyCond.Signal()
 }
 
+// sendInstallSnapshot
+// leader send the snapshot to the peer
 func (rf *Raft) sendInstallSnapshot(server int, args *InstallSnapshotArgs, reply *InstallSnapshotReply) bool {
 	ok := rf.peers[server].Call("Raft.InstallSnapshot", args, reply)
 	return ok
 }
 
-func (rf *Raft) installOnPeer(peer int, args *InstallSnapshotArgs) {
+func (rf *Raft) installOnPeer(peer int, term int, args *InstallSnapshotArgs) {
 	reply := &InstallSnapshotReply{}
 	ok := rf.sendInstallSnapshot(peer, args, reply)
 
@@ -97,10 +101,16 @@ func (rf *Raft) installOnPeer(peer int, args *InstallSnapshotArgs) {
 		return
 	}
 
+	// check context lost
+	if rf.contextLostLocked(Leader, term) {
+		LOG(rf.me, rf.currentTerm, DLog, "-> S%d, Context Lost, T%d:Leader->T%d:%s", peer, term, rf.currentTerm, rf.role)
+		return
+	}
+
 	// update the match and next
 	if args.LastIncludedIndex > rf.matchIndex[peer] { // to avoid disorder reply
 		rf.matchIndex[peer] = args.LastIncludedIndex
-		rf.nextIndex[peer] = args.LastIncludedIndex + 1
+		rf.nextIndex[peer] = rf.matchIndex[peer] + 1
 	}
 
 	// note: we need not try to update the commitIndex again,

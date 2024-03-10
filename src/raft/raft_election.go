@@ -15,7 +15,7 @@ func (rf *Raft) randomTimeout() time.Duration {
 	return electionTimeoutMin + time.Duration(rand.Int63())%(electionTimeoutMax-electionTimeoutMin)
 }
 
-func (rf *Raft) isElectionTimeout() bool {
+func (rf *Raft) isElectionTimeoutLocked() bool {
 	return time.Since(rf.electionStart) > rf.electionTimeout
 }
 
@@ -160,11 +160,10 @@ func (rf *Raft) startElection(term int) {
 		// count votes
 		if reply.VoteGranted {
 			votes++
-		}
-
-		if votes > len(rf.peers)/2 {
-			rf.becomeLeaderLocked()
-			go rf.replicationTicker(term)
+			if votes > len(rf.peers)/2 {
+				rf.becomeLeaderLocked()
+				go rf.replicationTicker(term)
+			}
 		}
 	}
 
@@ -203,7 +202,7 @@ func (rf *Raft) electionTicker() {
 		// Your code here (3A)
 		// Check if a leader election should be started.
 		rf.mu.Lock()
-		if rf.role != Leader && rf.isElectionTimeout() {
+		if rf.role != Leader && rf.isElectionTimeoutLocked() {
 			rf.becomeCandidateLocked()
 			go rf.startElection(rf.currentTerm)
 		}
